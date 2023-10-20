@@ -13,7 +13,7 @@ It includes several tools:
 
 ## About
 
-I have been working on this project on and off in my free time for about 4 years. It was intended for my personal use and for friends. However, I recently realized that these tools have been quite useful over time, so I decided to prepare them for release. Overall there are about 5-7 (depending how you count) tools and scripts that I regularly use. I already added one (guess year and label of music tracks), and I plan to clean it up further and to add the others in time. Currently I am on version 0.0.1. But depending on the time and motivation I find, this might improve quickly, or not.
+I have been working on this project on and off in my free time for about 4 years. It was intended for my personal use and for friends. However, I recently realized that these tools have been quite useful over time, so I decided to prepare them for release. Overall there are about 5-7 (depending how you count) tools and scripts that I regularly use. I already added one (guess year and label of music tracks), and I plan to clean it up further and to add the others in time.
 
 ## Contribution
 
