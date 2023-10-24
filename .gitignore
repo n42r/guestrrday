@@ -2,6 +2,7 @@
 
 config.yaml
 tests/mu-files/
+tests/backup/
 __pycache__/
 *.py[cod]
 *$py.class
