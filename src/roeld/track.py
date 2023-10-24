@@ -24,7 +24,7 @@ class track:
 			print("Couldn't match: " + self.title)
 		else:
 			match = match[0]
-			self.track = match[0].strip()
+			self.track = int(match[0].strip())
 			self.artist = match[1].strip()
 			self.song_title = match[3].strip()
 			self.title = self.artist + ' - ' + self.song_title
@@ -70,6 +70,10 @@ class track:
 	# Musicology
 	def get_song_title(self):
 		return self.song_title
+
+	# 2
+	def get_track(self):
+		return self.track
 	
 	def str(self):
 		s = ''
