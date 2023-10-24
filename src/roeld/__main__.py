@@ -1,5 +1,5 @@
 import click
-from roeld import discogs_guesser
+from roeld.year_guesser import year_guesser
 
 @click.command()
 @click.option('--operation', default='guess-yr', help='Given a directory guess the year of each track [default "guess-yr"].')
@@ -10,13 +10,12 @@ def main(operation, input, range):
 		- Get years of tracks in bulk, 
 		- Generate a youtube playlist from a tracklisk (forthcoming)
 		- And several other tools to come."""
-	
+		
 	mn, mx = range.split('-')
-	dg = discogs_guesser.discogs_guesser(int(mn), int(mx))
+	dg = year_guesser(int(mn), int(mx))
 	dg.guess_by_dir(input)
 
 
 if __name__ == "__main__":
-
 	main()
 

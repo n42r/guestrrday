@@ -4,9 +4,10 @@ import yaml
 import time
 import os
 
-from roeld import track, discogs_guesser_utils
+from roeld.track import track
+from roeld.year_guesser import year_guesser_utils
 
-class discogs_guesser:
+class year_guesser:
 	def __init__(self, year_mn=1910, year_mx=datetime.now().year, inc_compilations=False):
 		self.year_mn = year_mn
 		self.year_mx = year_mx
@@ -14,7 +15,7 @@ class discogs_guesser:
 		self.decade = ''
 		if year_mx - year_mn == 9 and year_mn % 10 == 0:
 			self.self.decade = year_mn
-		con = load_config()
+		con = load_config()		
 		self.discogs_user_token = con.get('discogs_user_token')
 		self.d_client = discogs_client.Client('ExampleApplication/0.1', user_token=self.discogs_user_token)
 
@@ -54,7 +55,7 @@ class discogs_guesser:
 			if page1 != None:
 				break
 		
-		yr_res = discogs_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
+		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
 		if yr_res != -1:
 			return self.print_and_return(fn, yr_res)
 			
@@ -65,7 +66,7 @@ class discogs_guesser:
 		####################
 				
 		# from 'Puff Daddy - I will always love you (Abas remix)' => 'Puff Daddy - I will always love you'
-		base_title = discogs_guesser_utils.get_base_title(title)
+		base_title = year_guesser_utils.get_base_title(title)
 		
 		for i in [1,2]:
 			results = self.d_client.search(base_title, type='release', sort='year,asc', decade=self.decade)
@@ -73,7 +74,7 @@ class discogs_guesser:
 			if page1 != None:
 				break
 				
-		yr_res = discogs_guesser_utils.process_results_discogs(page1, base_title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
+		yr_res = year_guesser_utils.process_results_discogs(page1, base_title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
 		if yr_res != -1:
 			return self.print_and_return(fn, yr_res)
 
@@ -94,7 +95,7 @@ class discogs_guesser:
 			if page1 != None:
 				break
 
-		yr_res = discogs_guesser_utils.process_results_discogs(page1, base_title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
+		yr_res = year_guesser_utils.process_results_discogs(page1, base_title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
 		if yr_res != -1:
 			return self.print_and_return(fn, yr_res)
 		
