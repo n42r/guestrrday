@@ -1,8 +1,8 @@
 # Byte-compiled / optimized / DLL files
 
 config.yaml
-tests/mu-files/
-tests/backup/
+tests/mu-files/*
+tests/backup/*
 __pycache__/
 *.py[cod]
 *$py.class
