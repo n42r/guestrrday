@@ -3,6 +3,7 @@
 config.yaml
 tests/mu-files/*
 tests/backup/*
+!tests/mu-files/.gitkeep 
 __pycache__/
 *.py[cod]
 *$py.class
