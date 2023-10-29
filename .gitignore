@@ -1,9 +1,8 @@
 # Byte-compiled / optimized / DLL files
 
 config.yaml
-tests/mu-files/*
-tests/backup/*
-!tests/mu-files/.gitkeep 
+src/test-audio/mu-files/*
+src/test-audio/backup/*
 __pycache__/
 *.py[cod]
 *$py.class

@@ -32,16 +32,22 @@ class year_guesser:
 			time.sleep( 60 )
 		return page1
 	
-	def print_and_return(self, fn, yr):
+	def print_and_return(self, fn, title, yr):
+		if fn == None:
+			fn = title
 		if yr > -1:
-			print('Year => {}: {}'.format(yr, os.path.basename(fn)))
+			print('Year => {}: {}'.format(yr, fn))
 		else:
-			print('Year => ????: {}'.format(os.path.basename(fn)))
+			print('Year => ????: {}'.format(fn))
 		return yr
-		
+	
+	# def guess(self, track):
+		# if os.path.exists(track) and os.path.isfile(track) and has_music_ext(track):
+			# tr = track.track( os.path.join(dirpath, fn) )
+			# return guess_helper
 
 	def guess(self, track):
-		
+				
 		#####
 		# first attempt: search for track as a single
 		#####
@@ -57,7 +63,7 @@ class year_guesser:
 		
 		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
 		if yr_res != -1:
-			return self.print_and_return(fn, yr_res)
+			return self.print_and_return(fn, title, yr_res)
 			
 
 
@@ -76,7 +82,7 @@ class year_guesser:
 				
 		yr_res = year_guesser_utils.process_results_discogs(page1, base_title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
 		if yr_res != -1:
-			return self.print_and_return(fn, yr_res)
+			return self.print_and_return(fn, title, yr_res)
 
 			
 		####################
@@ -97,9 +103,9 @@ class year_guesser:
 
 		yr_res = year_guesser_utils.process_results_discogs(page1, base_title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
 		if yr_res != -1:
-			return self.print_and_return(fn, yr_res)
+			return self.print_and_return(fn, title, yr_res)
 		
-		return self.print_and_return(fn, -1)
+		return self.print_and_return(fn, title, -1)
 		
 	def guess_by_dir(self, dirpath):
 		files = os.listdir(dirpath)
@@ -107,8 +113,7 @@ class year_guesser:
 			tr = track.track( os.path.join(dirpath, fn) )
 			#print(tr.title)
 			self.guess(tr)
-
-	
+		
 def load_config():
 	con = None
 	if os.path.isfile('.\\guesterday\\config.yaml'):
