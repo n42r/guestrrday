@@ -100,8 +100,8 @@ class search_engine:
 
 def load_config():
 	con = None
-	if os.path.isfile('.\\src\\roeld\\config.yaml'):
-		with open('.\\src\\roeld\\config.yaml', 'r') as stream:
+	if os.path.isfile('.\\src\\guesterday\\config.yaml'):
+		with open('.\\src\\guesterday\\config.yaml', 'r') as stream:
 			try:
 				con = yaml.safe_load(stream)
 			except yaml.YAMLError as exc:

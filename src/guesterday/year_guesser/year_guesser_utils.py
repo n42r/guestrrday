@@ -187,7 +187,7 @@ def rename(fn, yr=0, label=None, format='standard_plus_label'):
 		else:
 			base_fn = '{} ({})'.format(base_fn , yr)
 	else:
-		# the roeld chronological format
+		# the guesterday chronological format
 		base_fn = '{} -- {} {{{}}}'.format(yr, base_fn , label)		
 		
 	new_fn = "{}.{}".format(base_fn, ext)
