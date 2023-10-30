@@ -59,18 +59,18 @@ def replace_symbols_with_spaces(text):
 	return text
 
 # check that atleast two of the words in lst_pre occur in string st
-def two_in(st1, st2):
+def two_in(st1, st2, limit=2):
 	st1 = replace_symbols_with_spaces(st1.lower().strip())
 	st2 = replace_symbols_with_spaces(st2.lower().strip())
-	return two_in_helper(st1, st2) and two_in_helper(st2, st1)
+	return two_in_helper(st1, st2, limit=limit) #and two_in_helper(st2, st1)
 
 # check that atleast two of the words in lst_pre occur in string st
-def two_in_helper(st1, st2):
+def two_in_helper(st1, st2,limit=2):
 	st1_words_init = st1.split(' ')
 	st2_words_init = st2.split(' ')
 	
 	count = 0 
-	limit = 2
+	#limit = 2
 	
 	st1_words = filter_out_stopwords_punc(st1_words_init)
 	st2_words = filter_out_stopwords_punc(st2_words_init)
@@ -94,21 +94,43 @@ def two_in_helper(st1, st2):
 		return True
 	else:
 		return False
+
+def two_in_artist_title(str1, str2):
+	print(str1, str2)
+	if str1.find(' - ') > -1 and str2.find(' - ') > -1:
+		art1 = str1[:str1.find(' - ')]
+		tit1 = str1[str1.find(' - ') + 3:]
+		art2 = str2[:str2.find(' - ')]
+		tit2 = str2[str2.find(' - ') + 3:]
+		return two_in(art1, art2) and two_in(tit1, tit2)
+	else:
+		return two_in(str1, str2, limit=3)
+
 		
-def process_results_discogs(page1, title, fn, year_mn, year_mx, google_res=False, inc_compilations=False):
+def process_results_discogs(page1, title, fn, year_mn, year_mx, google_res=False,single=True):
 	top_hits = 10
 	lowest_seen_yr = 3000
 	lowest_seen_item = None
 	yr = -1
 	count = -1
 	item = None
+	art1 = title[:title.find(' - ')]
+	tit1 = title[title.find(' - ') + 3:]
 	for i in page1:
 		count += 1
 		if 'year' in i.data:
 			yr = int(i.data['year'])
-			if yr < lowest_seen_yr and yr >= year_mn and yr <= year_mx and i != None and two_in(title, i.title):
-				lowest_seen_item = i
-				lowest_seen_yr = yr
+			if yr < lowest_seen_yr and yr >= year_mn and yr <= year_mx and i != None:
+				art2 = i.title[:i.title.find(' - ')]
+				tit2 = i.title[i.title.find(' - ') + 3:]
+				if single:
+					if two_in(art1, art2) and two_in(tit1, tit2):
+						lowest_seen_item = i
+						lowest_seen_yr = yr
+				else:
+					if two_in(art1, art2):
+						lowest_seen_item = i
+						lowest_seen_yr = yr
 			if count >= top_hits:
 				break
 	

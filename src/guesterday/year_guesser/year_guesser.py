@@ -8,10 +8,9 @@ from guesterday.track import track
 from guesterday.year_guesser import year_guesser_utils
 
 class year_guesser:
-	def __init__(self, year_mn=1910, year_mx=datetime.now().year, inc_compilations=False):
+	def __init__(self, year_mn=1910, year_mx=datetime.now().year):
 		self.year_mn = year_mn
 		self.year_mx = year_mx
-		self.inc_compilations = inc_compilations
 		self.decade = ''
 		if year_mx - year_mn == 9 and year_mn % 10 == 0:
 			self.self.decade = year_mn
@@ -59,7 +58,7 @@ class year_guesser:
 		
 		page1 = self.search_and_get_results(title, type='release', format="Single|12''|10''|7''", sort='year,asc')
 		
-		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
+		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx)
 		if yr_res != -1:
 			return self.print_and_return(fn, title, yr_res)
 			
@@ -73,13 +72,13 @@ class year_guesser:
 		
 		page1 = self.search_and_get_results(title, type='release', format="Single|12''|10''|7''", sort='year,asc')
 		
-		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
+		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx)
 		if yr_res != -1:
 			return self.print_and_return(fn, title, yr_res)
 
 
 		####################
-		# third attempt: any 'kind' of release (albums, compilations), no mix name
+		# third attempt: any 'kind' of release (albums, compilations by the artist, note that 'various artist' compilations are not considered). Plus no mix name
 		####################
 				
 		# from 'Puff Daddy - I will always love you (Abas remix)' => 'Puff Daddy - I will always love you'
@@ -87,7 +86,7 @@ class year_guesser:
 				
 		page1 = self.search_and_get_results(title, type='release', format='', sort='year,asc')
 				
-		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
+		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx, single=False)
 		if yr_res != -1:
 			return self.print_and_return(fn, title, yr_res)
 
