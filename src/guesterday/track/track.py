@@ -3,7 +3,7 @@ import os.path
 import unidecode
 
 class track:
-	def __init__(self, title):
+	def __init__(self, title, id=None):
 		self.filename_path = None
 		if os.path.exists(title) and os.path.isfile(title) and has_music_ext(title):
 			base = os.path.basename(title)
@@ -12,31 +12,17 @@ class track:
 		self.title = title
 		self.track = None
 		self.artist = None
+		self.year = None
+		self.qualifier = None
 		self.song_title = None
+		self.id = id
 		self.extract_artist_title()
 	
-	def extract_artist_title(self):	
-		self.title = cleanup_title(self.title)
-		pat_str = '^\s*(\d*)\s*[\W_]?\s*(.+)(\s[\-\_~\：]|[\-\_~\：]\s|\s[\-\_~\：]\s)(.+)\[[0-9A-Za-z_-]{11}.*]'
-		pat = re.compile(pat_str)
-		match = re.findall(pat, self.title)
-		if match == []:
-			print("Couldn't match: " + self.title)
-		else:
-			match = match[0]
-			self.track = int(match[0].strip())
-			self.artist = match[1].strip()
-			self.song_title = match[3].strip()
-			self.title = self.artist + ' - ' + self.song_title
-		self.title = self.title.replace('[','(')
-		self.title = self.title.replace(']',')')
-
-	
-	# MyFolder\MyAlbum\02. Prince - Musicology.mp3
+	# MyFolder\MyAlbum\02. Prince - Musicology (Timelife Mix).mp3
 	def get_filename_path(self):
 		return self.filename_path
 		
-	# Prince - Musicology
+	# Prince - Musicology (Timelife Mix)
 	def get_title(self):
 		return self.title
 	
@@ -52,6 +38,19 @@ class track:
 	def get_track(self):
 		return self.track
 	
+	# Timelife Mix
+	def get_qualifier(self):
+		return self.qualifier	
+	
+	def get_year(self):
+		return self.year
+	
+	def get_id(self):
+		return self.id
+	
+	def is_track(self):
+		return self.artist != None and self.song_title != None
+		
 	def str(self):
 		s = ''
 		if self.filename_path != None:
@@ -59,7 +58,33 @@ class track:
 		s = self.title + s
 		return s
 		
-	
+	def extract_artist_title(self):	
+		self.title = cleanup_title(self.title)
+		pat_str = '^\s*(\d*)\s*[\W_]?\s*(.+)(\s[\-\_~\：]|[\-\_~\：]\s|\s[\-\_~\：]\s)(.+)$'
+		pat = re.compile(pat_str)
+		match = re.findall(pat, self.title)
+		if match != []:
+			match = match[0]
+			if match[0] != '':
+				self.track = int(match[0].strip())
+			self.artist = match[1].strip()
+			if len(match) == 5 and match[4] != '':
+				self.year = match[4]
+			sng_tit = match[3].strip()
+			pat_2 = re.compile('^\s*(.+)\s*(?:\((.[\w\s\W]+)\))\s*$')
+			match_2 = re.findall(pat_2, sng_tit)
+			if match_2 != []:
+				match_2 = match_2[0]
+				sng_tit = match_2[0].strip()
+				self.qualifier = match_2[1].strip()
+			self.song_title = sng_tit
+			self.title = self.artist + ' - ' + self.song_title
+			if self.qualifier != None:
+				self.title += ' (' + self.qualifier + ')'
+			#if self.year != None:
+			#	self.title += ' (' + self.year + ')'
+		else:
+			print("Couldn't match: " + self.title)
 	
 def has_music_ext(fn):
 	ext_idx = fn.rfind('.')
@@ -73,19 +98,23 @@ def has_music_ext(fn):
 
 def cleanup_title(title):
 	title = title.lower()
+	title = title.replace('[','(')
+	title = title.replace(']',')')
+	title = title.replace('{','(')
+	title = title.replace('}',')')
+	title = title.replace('–','-')
+	title = title.replace("’","'")
+	title = title.replace("´","'")
+	title = title.replace('＂','"')
 	title = title.replace(' and ', ' & ')
 	title = title.replace(' feat.', ' & ')
 	title = title.replace(' feat ', ' & ')
 	title = title.replace(' ft. ', ' & ')		
 	title = title.replace(' ft ', ' & ')
 	title = title.replace(' featuring ', ' & ')
-	title = title.replace("’","'")
-	title = title.replace("´","'")
-	title = title.replace('＂','"')
-	title = title.replace('/',', ')
-	title = title.replace('╱',', ')		
-	title = title.replace(', ',' - ', 1)
 	title = unidecode.unidecode(title)
+	title = title.replace('**', '')
+	title = title.replace('"', '')
 	if title.rfind('"') > title.find('"') and title.find('"') > -1 and title.find(" - ") == -1:
 		title = re.sub(' ?\" ?(.+) ?\"', ' - \\1', title)
 	if title.find(' - ') == -1:
@@ -93,4 +122,5 @@ def cleanup_title(title):
 			title = title.replace('   ',' - ', 1)
 		elif title.find('  ') > -1:
 			title = title.replace('  ',' - ', 1)
+	return title.strip()
 	return title.strip()

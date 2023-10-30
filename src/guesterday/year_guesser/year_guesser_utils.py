@@ -1,11 +1,11 @@
 import os
 import time
-import string
 #import mutagen
 #import nltk
 import re
 #import google 
 from nltk.corpus import stopwords
+import string
 import unidecode
 #from PIL import Image
 #import shutil
@@ -44,10 +44,12 @@ def remove_blacklist_chars(fn):
 def filter_out_stopwords_punc(lst):
 	return [word for word in lst if not (word in stopwords.words('english') or word in string.punctuation or len(word) < 2) ]
 
+def remove_accents(lst):
+	return [unidecode.unidecode(word) for word in lst]
+
 # check that atleast two of the words in lst_pre occur in string st
 def two_in(lst_pre, st):
 	return two_in_helper(lst_pre, st) or two_in_helper(st.split(' '), ' '.join(lst_pre))
-
 
 # check that atleast two of the words in lst_pre occur in string st
 def two_in_helper(lst_pre, st, first=True):

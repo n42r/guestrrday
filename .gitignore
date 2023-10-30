@@ -1,8 +1,7 @@
 # Byte-compiled / optimized / DLL files
 
 config.yaml
-src/test-audio/mu-files/*
-src/test-audio/backup/*
+mu-test-files/
 __pycache__/
 *.py[cod]
 *$py.class
