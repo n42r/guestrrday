@@ -113,8 +113,8 @@ def cleanup_title(title):
 	title = title.replace(' ft ', ' & ')
 	title = title.replace(' featuring ', ' & ')
 	title = unidecode.unidecode(title)
-	title = title.replace('**', '')
-	title = title.replace('"', '')
+	title = title.replace('*', '')
+	title = title.replace("''", '"')
 	if title.rfind('"') > title.find('"') and title.find('"') > -1 and title.find(" - ") == -1:
 		title = re.sub(' ?\" ?(.+) ?\"', ' - \\1', title)
 	if title.find(' - ') == -1:
@@ -122,5 +122,5 @@ def cleanup_title(title):
 			title = title.replace('   ',' - ', 1)
 		elif title.find('  ') > -1:
 			title = title.replace('  ',' - ', 1)
-	return title.strip()
+	title = title.replace('"', '')
 	return title.strip()

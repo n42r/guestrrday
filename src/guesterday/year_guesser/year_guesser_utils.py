@@ -47,121 +47,86 @@ def filter_out_stopwords_punc(lst):
 def remove_accents(lst):
 	return [unidecode.unidecode(word) for word in lst]
 
-# check that atleast two of the words in lst_pre occur in string st
-def two_in(lst_pre, st):
-	return two_in_helper(lst_pre, st) or two_in_helper(st.split(' '), ' '.join(lst_pre))
+def replace_symbols_with_spaces(text):
+	pat = re.compile('[^\w^\-]')
+	text = re.sub('[^\w^\-]', ' ', text)
+	text = re.sub('[\W\s][\d\-]+[\W\s]', ' ', text)
+	dashed = re.findall('\w+\-\w+', text)	
+	dashed = ' '.join(dashed)
+	dashed = re.sub('\-', ' ', dashed)
+	text = text + ' ' + dashed
+	text = re.sub(' +', ' ', text)
+	return text
 
 # check that atleast two of the words in lst_pre occur in string st
-def two_in_helper(lst_pre, st, first=True):
+def two_in(st1, st2):
+	st1 = replace_symbols_with_spaces(st1.lower().strip())
+	st2 = replace_symbols_with_spaces(st2.lower().strip())
+	return two_in_helper(st1, st2) and two_in_helper(st2, st1)
+
+# check that atleast two of the words in lst_pre occur in string st
+def two_in_helper(st1, st2):
+	st1_words_init = st1.split(' ')
+	st2_words_init = st2.split(' ')
+	
 	count = 0 
 	limit = 2
-	lst = filter_out_stopwords_punc(lst_pre)
-	st_temp = filter_out_stopwords_punc(st.split(' '))
-	if len(st_temp) > 0:
-		st = ' '.join(st_temp)
 	
-	lst2 = []
-	for w in lst:
-		unaccented_string = unidecode.unidecode(w)
-		lst2.append(unaccented_string)
-	lst=lst2
-	st = unidecode.unidecode(st)
-
-	len_lst = len(lst)
-
-	if len_lst == 0:
-		lst = lst_pre
-	if len_lst <= limit:
-		if len_lst == 2:
-			limit = 2
-		else:
-			limit = len_lst - 1
-		if limit == 0:
-			limit = 1
-						
-	num_of_words_in_result = len(st.split(' '))
-	if limit > num_of_words_in_result:
-		limit = num_of_words_in_result
+	st1_words = filter_out_stopwords_punc(st1_words_init)
+	st2_words = filter_out_stopwords_punc(st2_words_init)
 	
-	for word in lst:
-		word = word.lower()
-		stl = st.lower() + ' '
-		if len(word) < 3:
-			word = word + ' '
-		if stl.find(word) > -1:
-			count = count + 1
-		if count >= limit:
-			return True
-			
-	if first == True and len(lst) < 3:
-		new_lst = []
-		for poss_acronym in lst:
-			if poss_acronym.find('.') > -1 and len(poss_acronym) < 9:
-				poss_acronym = poss_acronym.replace('.','')
-				new_lst.append(poss_acronym)
-			elif poss_acronym.find('.') == -1 and len(poss_acronym) < 5:
-				ls = list(poss_acronym)
-				ac = '.'.join(ls) + '.'
-				new_lst.append(ac) 
-		return two_in_helper(new_lst, st, False)
-	return False
-
-def process_results_discogs(page1, base_title, fn, year_mn, year_mx, google_res=False, inc_compilations=False):
-	global debug
-	if len(page1) == 0:
-		if debug:
-			print('no search results')
-		return -1
+	if len(st1_words) == 0 or len(st2_words) == 0:
+		st1_words = st1_words_init
+		st2_words = st2_words_init
 	
+	st1_words = remove_accents(st1_words)
+	st2_words = remove_accents(st2_words)
+
+	limit_ = min(len(st1_words), len(st2_words))
+	if limit_ < limit:
+		limit = limit_
+	
+	for word in st1_words:
+		if word in st2_words:
+			count += 1
+	
+	if count >= limit:
+		return True
+	else:
+		return False
+		
+def process_results_discogs(page1, title, fn, year_mn, year_mx, google_res=False, inc_compilations=False):
+	top_hits = 10
+	lowest_seen_yr = 3000
+	lowest_seen_item = None
 	yr = -1
+	count = -1
 	item = None
 	for i in page1:
-#		print(i.images)
+		count += 1
 		if 'year' in i.data:
 			yr = int(i.data['year'])
-			item = i
-			if yr >= year_mn and yr <= year_mx:
+			if yr < lowest_seen_yr and yr >= year_mn and yr <= year_mx and i != None and two_in(title, i.title):
+				lowest_seen_item = i
+				lowest_seen_yr = yr
+			if count >= top_hits:
 				break
 	
-#	yr = int(item.data['year'])
-
-	if yr < year_mn or yr > year_mx:
-		if debug:	 
-			print('Year out of range: ', yr)
-		return -1
-	
-	# from 'Puff Daddy - I will always love you (Abas remix)' => ['puff', 'daddy', '']
-	artist_keywords = base_title.split(' - ')[0]
-	artist_keywords= re.split("\. |,|-|'|&\*", artist_keywords)
-
-	tit = item.title
-	tit = tit.replace('*', '')
-	
-	if tit.find(' - ') > -1:
-		tit = tit.split(' - ')[0]
-		tit = ' '.join(re.split("\. |,|-|'|&\*", tit))
-		
-	if google_res == False and inc_compilations == False:
-		if not(two_in(artist_keywords, tit)):
-			if debug:
-				print('artist keywords not in result')
-				print('({}=>{})'.format(' '.join(artist_keywords), tit))
-			return -1
+	item = lowest_seen_item
+	yr = lowest_seen_yr
+	if yr == 3000:
+		yr = -1
 	
 	lbl = None
-
-	if 'label' in item.data.keys():
-		lbl = item.data['label'][0]
-		words = lbl.split()
-		if len(words) > 3:
-			words = words[0:3]
-		lbl = ' '.join(words)
 	
 	if yr != -1:
+		if 'label' in item.data.keys():
+			lbl = item.data['label'][0]
+			words = lbl.split()
+			if len(words) > 3:
+				words = words[0:3]
+			lbl = ' '.join(words)
 		fn = rename(fn, yr, lbl)
-	else:
-		if debug:
-			print('No Year')
 	return yr
 
 def rename(fn, yr=0, label=None, format='standard_plus_label'):

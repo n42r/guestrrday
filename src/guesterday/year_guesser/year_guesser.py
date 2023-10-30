@@ -32,6 +32,14 @@ class year_guesser:
 			time.sleep( 60 )
 		return page1
 	
+	def search_and_get_results(self, title, format, type, sort):
+		for i in [1,2]:
+			results = self.d_client.search(title, type=type, format=format, sort=sort, decade=self.decade)
+			page1 = self.get_page_one(results)
+			if page1 != None:
+				break
+		return page1
+	
 	def print_and_return(self, fn, title, yr):
 		if fn == None:
 			fn = title
@@ -41,69 +49,64 @@ class year_guesser:
 			print('Year => ????: {}'.format(fn))
 		return yr
 	
-	# def guess(self, track):
-		# if os.path.exists(track) and os.path.isfile(track) and has_music_ext(track):
-			# tr = track.track( os.path.join(dirpath, fn) )
-			# return guess_helper
-
 	def guess(self, track):
-				
+		title = track.get_title()
+		fn = track.get_filename_path()
+		
 		#####
 		# first attempt: search for track as a single
 		#####
 		
-		title = track.get_title()
-		fn = track.get_filename_path()
-		
-		for i in [1,2]:
-			results = self.d_client.search(title, type='release', format="Single|12''|10''|7''", sort='year,asc', decade=self.decade)
-			page1 = self.get_page_one(results)
-			if page1 != None:
-				break
+		page1 = self.search_and_get_results(title, type='release', format="Single|12''|10''|7''", sort='year,asc')
 		
 		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
 		if yr_res != -1:
 			return self.print_and_return(fn, title, yr_res)
 			
 
-
 		####################
-		# second attempt: any 'kind' of release (albums, compilations) + remove all text after brackets (usually mix name)
+		# second attempt: singles but drop anything between brackets (mix name typically)
 		####################
 				
 		# from 'Puff Daddy - I will always love you (Abas remix)' => 'Puff Daddy - I will always love you'
-		base_title = year_guesser_utils.get_base_title(title)
+		title = year_guesser_utils.get_base_title(title)
 		
-		for i in [1,2]:
-			results = self.d_client.search(base_title, type='release', sort='year,asc', decade=self.decade)
-			page1 = self.get_page_one(results)
-			if page1 != None:
-				break
+		page1 = self.search_and_get_results(title, type='release', format="Single|12''|10''|7''", sort='year,asc')
+		
+		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
+		if yr_res != -1:
+			return self.print_and_return(fn, title, yr_res)
+
+
+		####################
+		# third attempt: any 'kind' of release (albums, compilations), no mix name
+		####################
 				
-		yr_res = year_guesser_utils.process_results_discogs(page1, base_title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
+		# from 'Puff Daddy - I will always love you (Abas remix)' => 'Puff Daddy - I will always love you'
+		title = year_guesser_utils.get_base_title(title)
+				
+		page1 = self.search_and_get_results(title, type='release', format='', sort='year,asc')
+				
+		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
 		if yr_res != -1:
 			return self.print_and_return(fn, title, yr_res)
 
 			
 		####################
-		# third attempt: Try to add a 'The' before artists (hack for discogs search engine) or remove it if it exists
+		# Fourth attempt: Try to add a 'The' before artists (hack for discogs search engine) or remove it if it exists
 		####################
 		
-		base_title = base_title.lower()
-		if base_title.find('the') == -1:
-			base_title = 'the ' + base_title
-		else:
-			base_title = base_title.replace('the', '')
+		# title = title.lower()
+		# if title.find('the') == -1:
+			# title = 'the ' + title
+		# else:
+			# title = title.replace('the', '')
+		
+		#page1 = self.search_and_get_results(title, type='release', format='', sort='year,asc')
 
-		for i in [1,2]:
-			results = self.d_client.search(base_title, type='release', sort='year,asc', decade=self.decade)
-			page1 = self.get_page_one(results)
-			if page1 != None:
-				break
-
-		yr_res = year_guesser_utils.process_results_discogs(page1, base_title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
-		if yr_res != -1:
-			return self.print_and_return(fn, title, yr_res)
+		# yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, self.year_mn, self.year_mx, inc_compilations=self.inc_compilations)
+		# if yr_res != -1:
+			# return self.print_and_return(fn, title, yr_res)
 		
 		return self.print_and_return(fn, title, -1)
 		
