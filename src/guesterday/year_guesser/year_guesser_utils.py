@@ -107,7 +107,7 @@ def two_in_artist_title(str1, str2):
 		return two_in(str1, str2, limit=3)
 
 		
-def process_results_discogs(page1, title, fn, year_mn, year_mx, google_res=False,single=True):
+def process_results_discogs(page1, title, fn, google_res=False,single=True):
 	top_hits = 10
 	lowest_seen_yr = 3000
 	lowest_seen_item = None
@@ -120,7 +120,7 @@ def process_results_discogs(page1, title, fn, year_mn, year_mx, google_res=False
 		count += 1
 		if 'year' in i.data:
 			yr = int(i.data['year'])
-			if yr < lowest_seen_yr and yr >= year_mn and yr <= year_mx and i != None:
+			if yr < lowest_seen_yr and i != None:
 				art2 = i.title[:i.title.find(' - ')]
 				tit2 = i.title[i.title.find(' - ') + 3:]
 				if single:
