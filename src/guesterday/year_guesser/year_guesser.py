@@ -29,16 +29,21 @@ class year_guesser:
 		return page1
 	
 	def guess(self, track):
-		yr = self.guess_(track)
+		res = self.guess_(track)
 		fn = track.get_filename_path()
-		title = track.get_title()
-		if fn == None:
-			fn = title
-		if yr > -1:
-			print('Year => {}: {}'.format(yr, fn))
-		else:
-			print('Year => ????: {}'.format(fn))
-		return yr
+		tit = track.get_title()
+		if res == None or res[0] == -1:
+			print('Year => ????: {}'.format(tit))
+			return None
+		
+		yr = res[0]
+		lbl= res[1]		
+		
+		print('Year => {}: {}'.format(yr, tit))
+		if fn != None:
+			year_guesser_utils.rename(fn, yr, lbl)
+		return res
+		
 		
 	def guess_(self, track):
 		title = track.get_title()
@@ -49,9 +54,9 @@ class year_guesser:
 		#####
 		
 		page1 = self.search_and_get_results(title, type='release', format="Single|12''|10''|7''", sort='year,asc')
-		
-		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn)
-		if yr_res != -1:
+		results = convert_discogs_results(page1)
+		yr_res = year_guesser_utils.get_earliest_matching_hit(results, title, fn)
+		if yr_res != None:
 			return yr_res
 			
 
@@ -63,9 +68,9 @@ class year_guesser:
 		title = year_guesser_utils.get_base_title(title)
 		
 		page1 = self.search_and_get_results(title, type='release', format="Single|12''|10''|7''", sort='year,asc')
-		
-		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn)
-		if yr_res != -1:
+		results = convert_discogs_results(page1)
+		yr_res = year_guesser_utils.get_earliest_matching_hit(results, title, fn)
+		if yr_res != None:
 			return yr_res
 
 
@@ -77,9 +82,9 @@ class year_guesser:
 		title = year_guesser_utils.get_base_title(title)
 				
 		page1 = self.search_and_get_results(title, type='release', format='', sort='year,asc')
-				
-		yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, single=False)
-		if yr_res != -1:
+		results = convert_discogs_results(page1)
+		yr_res = year_guesser_utils.get_earliest_matching_hit(results, title, fn, single=False)
+		if yr_res != None:
 			return yr_res
 
 			
@@ -94,12 +99,12 @@ class year_guesser:
 			# title = title.replace('the', '')
 		
 		#page1 = self.search_and_get_results(title, type='release', format='', sort='year,asc')
-
-		# yr_res = year_guesser_utils.process_results_discogs(page1, title, fn, inc_compilations=self.inc_compilations)
-		# if yr_res != -1:
+		#results = convert_discogs_results(page1)
+		#yr_res = year_guesser_utils.get_earliest_matching_hit(results, title, fn, single=False)
+		# if yr_res != None:
 			# return yr_res
 		
-		return -1
+		return None
 		
 	def guess_by_dir(self, dirpath):
 		files = os.listdir(dirpath)
@@ -122,4 +127,16 @@ def load_config():
 	if con.get('discogs_user_token') == None:
 		raise Exception("You must provide a discogs_user_token inside 'config.yaml' to use discogs functions.")
 	return con
+
+def convert_discogs_results(page):
+	res = []
+	for i in page:
+		item = {}
+		if i == None:
+			continue
+		item['year']  = i.data.get('year')
+		item['title'] = i.title
+		item['label'] = i.data.get('label')[0]
+		res.append(item)
+	return res
 			

@@ -1,17 +1,10 @@
 import os
 import time
-#import mutagen
-#import nltk
 import re
-#import google 
 from nltk.corpus import stopwords
 import string
 import unidecode
-#from PIL import Image
-#import shutil
-#import urllib
 
-debug = False
 
 def get_base_title(title):
 	dash_idx = title.find(' - ')
@@ -65,12 +58,11 @@ def two_in(st1, st2, limit=2):
 	return two_in_helper(st1, st2, limit=limit) #and two_in_helper(st2, st1)
 
 # check that atleast two of the words in lst_pre occur in string st
-def two_in_helper(st1, st2,limit=2):
+def two_in_helper(st1, st2, limit=2):
 	st1_words_init = st1.split(' ')
 	st2_words_init = st2.split(' ')
 	
 	count = 0 
-	#limit = 2
 	
 	st1_words = filter_out_stopwords_punc(st1_words_init)
 	st2_words = filter_out_stopwords_punc(st2_words_init)
@@ -94,65 +86,57 @@ def two_in_helper(st1, st2,limit=2):
 		return True
 	else:
 		return False
-
-def two_in_artist_title(str1, str2):
-	print(str1, str2)
-	if str1.find(' - ') > -1 and str2.find(' - ') > -1:
-		art1 = str1[:str1.find(' - ')]
-		tit1 = str1[str1.find(' - ') + 3:]
-		art2 = str2[:str2.find(' - ')]
-		tit2 = str2[str2.find(' - ') + 3:]
-		return two_in(art1, art2) and two_in(tit1, tit2)
-	else:
-		return two_in(str1, str2, limit=3)
-
-		
-def process_results_discogs(page1, title, fn, google_res=False,single=True):
+	
+def get_earliest_matching_hit(hits, title, fn, google_res=False,single=True):
 	top_hits = 10
 	lowest_seen_yr = 3000
 	lowest_seen_item = None
 	yr = -1
 	count = -1
 	item = None
-	art1 = title[:title.find(' - ')]
-	tit1 = title[title.find(' - ') + 3:]
-	for i in page1:
+	art1 = title
+	tit1 = title
+	if title.find(' - ') > -1:
+		art1 = title[:title.find(' - ')]
+		tit1 = title[title.find(' - ') + 3:]
+	for i in hits:
 		count += 1
-		if 'year' in i.data:
-			yr = int(i.data['year'])
-			if yr < lowest_seen_yr and i != None:
-				art2 = i.title[:i.title.find(' - ')]
-				tit2 = i.title[i.title.find(' - ') + 3:]
-				if single:
-					if two_in(art1, art2) and two_in(tit1, tit2):
-						lowest_seen_item = i
-						lowest_seen_yr = yr
-				else:
-					if two_in(art1, art2):
-						lowest_seen_item = i
-						lowest_seen_yr = yr
-			if count >= top_hits:
-				break
+		if yr == None or i.get('year') == None:
+			continue
+		yr = int(i.get('year'))
+		if yr < lowest_seen_yr:
+			art2 = i.get('title')
+			tit2 = i.get('title')
+			if i.get('title').find(' - ') > -1:
+				art2 = art2[:art2.find(' - ')]
+				tit2 = tit2[tit2.find(' - ') + 3:]
+			if single and two_in(art1, art2) and two_in(tit1, tit2):
+				lowest_seen_item = i
+				lowest_seen_yr = yr
+			elif two_in(art1, art2):
+				lowest_seen_item = i
+				lowest_seen_yr = yr
+		if count >= top_hits:
+			break
+			
 	
 	item = lowest_seen_item
 	yr = lowest_seen_yr
-	if yr == 3000:
-		yr = -1
 	
-	lbl = None
+	if yr == -1 or yr == 3000 or item == None:
+		return None
 	
-	if yr != -1:
-		if 'label' in item.data.keys():
-			lbl = item.data['label'][0]
-			words = lbl.split()
-			if len(words) > 3:
-				words = words[0:3]
-			lbl = ' '.join(words)
-		fn = rename(fn, yr, lbl)
-	return yr
+	lbl = item.get('label')
+	if lbl != None:
+		words = lbl.split()
+		if len(words) > 3:
+			words = words[0:3]
+		lbl = ' '.join(words)
+	return (yr, lbl)
 
-def rename(fn, yr=0, label=None, format='standard_plus_label'):
-	if yr == 0 and label == None:
+
+def rename(fn, yr=-1, label=None, format='standard_plus_label'):
+	if yr == -1 and label == None:
 		return fn
 	path = '.'
 	if os.path.basename(fn) != fn:
@@ -166,12 +150,12 @@ def rename(fn, yr=0, label=None, format='standard_plus_label'):
 	if format == 'standard_plus_label':
 		if label == None:
 			base_fn = '{} ({})'.format(base_fn , yr)
-		elif yr == 0:
+		elif yr == -1:
 			base_fn = '{} ({})'.format(base_fn , label)		
 		else:
 			base_fn = '{} ({}, {})'.format(base_fn , label, yr)
 	elif format == 'standard':
-		if yr == 0:
+		if yr == -1:
 			return fn
 		else:
 			base_fn = '{} ({})'.format(base_fn , yr)
