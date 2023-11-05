@@ -5,7 +5,7 @@ import time
 import os
 
 from guesterday.track import track
-from guesterday.year_guesser import year_guesser_utils
+from guesterday import year_guesser_utils
 
 class year_guesser:
 	def __init__(self):
@@ -33,13 +33,13 @@ class year_guesser:
 		fn = track.get_filename_path()
 		tit = track.get_title()
 		if res == None or res[0] == -1:
-			print('Year => ????: {}'.format(tit))
+			print('Year => ????: {}'.format(fn))
 			return None
 		
 		yr = res[0]
 		lbl= res[1]		
 		
-		print('Year => {}: {}'.format(yr, tit))
+		print('Year => {}: {}'.format(yr, fn))
 		if fn != None:
 			year_guesser_utils.rename(fn, yr, lbl)
 		return res
