@@ -125,10 +125,23 @@ def get_earliest_matching_hit(hits, title, fn, google_res=False,single=True):
 		lbl = ' '.join(words)
 	return (yr, lbl)
 
+def format_output(title, yr=-1, label=None, format='standard_plus_label'):
+	if yr == -1 and label == None:
+		return title
+	new_title = ''
+	if format == 'standard_plus_label' and label == None:
+		format = 'standard'
+	if format == 'standard_plus_label':
+		new_title = '{} ({}, {})'.format(title , label, yr)
+	elif format == 'standard':
+		new_title = '{} ({})'.format(title , yr)
+	else:
+		# the guesterday chronological format
+		new_title = '{} -- {} {{{}}}'.format(yr, title , label)
+	return new_title
+
 
 def rename(fn, yr=-1, label=None, format='standard_plus_label'):
-	if yr == -1 and label == None:
-		return fn
 	path = '.'
 	if os.path.basename(fn) != fn:
 		path = os.path.dirname(fn)
@@ -138,24 +151,8 @@ def rename(fn, yr=-1, label=None, format='standard_plus_label'):
 	base_fn = fn[ 0 : ext_idx ]
 	ext = fn[ ext_idx + 1 : ]
 	
-	if format == 'standard_plus_label':
-		if label == None:
-			base_fn = '{} ({})'.format(base_fn , yr)
-		elif yr == -1:
-			base_fn = '{} ({})'.format(base_fn , label)		
-		else:
-			base_fn = '{} ({}, {})'.format(base_fn , label, yr)
-	elif format == 'standard':
-		if yr == -1:
-			return fn
-		else:
-			base_fn = '{} ({})'.format(base_fn , yr)
-	else:
-		# the guesterday chronological format
-		base_fn = '{} -- {} {{{}}}'.format(yr, base_fn , label)		
-		
+	base_fn = format_output(base_fn, yr, label, format)
 	new_fn = "{}.{}".format(base_fn, ext)
-		
 	try:
 		os.rename( os.path.join(path, fn), os.path.join(path, new_fn) )
 	except Exception as e:

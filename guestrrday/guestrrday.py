@@ -28,26 +28,25 @@ class year_guesser:
 			return self.search_and_get_results(title, format, type, sort, first=False)
 		return page1
 	
+	# def guess_track(self, track):
+		# res = self.guess_track_(track)
+		# fn = track.get_filename_path()
+		# tit = track.get_title()
+		# if res == None or res[0] == -1:
+			# print('Year => ????: {}'.format(fn))
+			
+			# return None
+		
+		# yr = res[0]
+		# lbl= res[1]		
+		
+		# print('Year => {}: {}'.format(yr, fn))
+		# if fn != None:
+			# utils.rename(fn, yr, lbl)
+		# return res
+		
+		
 	def guess_track(self, track):
-		res = self.guess_track_(track)
-		fn = track.get_filename_path()
-		tit = track.get_title()
-		if res == None or res[0] == -1:
-			print('Year => ????: {}'.format(fn))
-			#print(', None)')
-			return None
-		
-		yr = res[0]
-		lbl= res[1]		
-		
-		print('Year => {}: {}'.format(yr, fn))
-		#print(f", ({yr}, '{lbl}'))")
-		if fn != None:
-			utils.rename(fn, yr, lbl)
-		return res
-		
-		
-	def guess_track_(self, track):
 		title = track.get_title()
 		fn = track.get_filename_path()
 
@@ -101,23 +100,42 @@ class year_guesser:
 		
 		return get_min_index(res1, res2, res3)
 			
-	def guess_by_dir(self, dirpath):
+	def guess_by_dir(self, dirpath, format='standard_plus_label'):
 		files = os.listdir(dirpath)
 		for fn in files:
 			tr = track( os.path.join(dirpath, fn) )
 			#print(tr.title)
-			self.guess_track(tr)
+			res = self.guess_track(tr)
+			if res is not None:
+				yr = res[0]
+				lbl = res[1]
+				utils.rename(os.path.join(dirpath, fn), yr, lbl, format='standard_plus_label')
 
-	def guess_by_tracklist(self, trklst):		
-		#outfile = trklst[:trklst.rfind('.')] + trklst[trklst.rfind('.'):]
-		#with open(outfile, encoding='utf8') as f:
-			#pass
+	def guess_by_tracklist(self, trklst, format='standard_plus_label'):		
+		out  = ''
 		with open(trklst, encoding='utf8') as f:
 			for line in f:
 				line = line.strip()
-				if line != '':
-					tr = track(line)
-					self.guess_track(tr)
+				if line == '' or line[0] == '#':
+					out += f'{line}\n' 
+					continue
+				tr = track(line)
+				#self.guess_track(tr)
+				res = self.guess_track(tr)
+				if res is not None:
+					yr = res[0]
+					lbl = res[1]
+					new_title = utils.format_output(tr.get_full_title(), yr, lbl, format='standard_plus_label')
+					out += f'{new_title}\n'
+		
+		outfile = trklst + '-guessed'
+		if trklst.find('.') > -1:
+			outfile = trklst[:trklst.rfind('.')] + '-guessed' + trklst[trklst.rfind('.'):]
+		with open(outfile, 'w', encoding='utf8') as f:
+			f.write(out)
+		f.close()
+					
+					
 		
 			
 	def guess(self, input):

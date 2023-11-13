@@ -13,6 +13,7 @@ class track:
 		self.track = None
 		self.artist = None
 		self.year = None
+		#self.label = None
 		self.qualifier = None
 		self.song_title = None
 		self.id = id
@@ -23,6 +24,14 @@ class track:
 	# MyFolder\MyAlbum\02. Prince - Musicology (Timelife Mix).mp3
 	def get_filename_path(self):
 		return self.filename_path
+
+	# 002. Prince - Musicology (Timelife Mix)
+	def get_full_title(self):
+		tit = self.title
+		if self.track is not None:
+			tr = str(self.track).zfill(3)
+			tit = f'{tr}. {tit}'
+		return tit
 		
 	# Prince - Musicology (Timelife Mix)
 	def get_title(self):
@@ -62,7 +71,7 @@ class track:
 		
 	def extract_artist_title(self):	
 		self.title = cleanup_title(self.title)
-		pat_str = '^\s*(\d*)\s*[\W_]?\s*(.+)(\s[\-\_~\：]|[\-\_~\：]\s|\s[\-\_~\：]\s)(.*)$'
+		pat_str = r'^\s*(\d*)\s*[\W_]?\s*(.+)(?:(\s[\-\_~\：]|[\-\_~\：]\s|\s[\-\_~\：]\s))(.*)$'
 		pat = re.compile(pat_str)
 		match = re.findall(pat, self.title)
 		if match != []:
@@ -73,7 +82,7 @@ class track:
 			if len(match) == 5 and match[4] != '':
 				self.year = match[4]
 			sng_tit = match[3].strip()
-			pat_2 = re.compile('^\s*(.+)\s*(?:\((.[\w\s\W]+)\))\s*$')
+			pat_2 = re.compile(r'^\s*(.+)\s*(?:\((.[\w\s\W]+)\))\s*$')
 			match_2 = re.findall(pat_2, sng_tit)
 			if match_2 != []:
 				match_2 = match_2[0]
@@ -86,9 +95,15 @@ class track:
 			#if self.year != None:
 			#	self.title += ' (' + self.year + ')'
 		else:
+			pat2= r'^\s*(\d*)\s*[\W_]?\s*(.+)$'
+			pat2 = re.compile(pat2)
+			match2 = re.findall(pat2, self.title)
+			if match2 != [] and match2[0][0].strip() != '':
+				self.track = int(match2[0][0].strip())
+				self.title = match2[0][1].strip()
+				#print("Couldn't match: " + self.title)
 			self.artist = self.title
 			self.song_title = self.title
-			print("Couldn't match: " + self.title)
 	
 def has_music_ext(fn):
 	ext_idx = fn.rfind('.')
