@@ -5,7 +5,7 @@ import time
 import os
 
 from guestrrday.track import track
-from guestrrday import year_guesser_utils
+from guestrrday import utils
 
 class year_guesser:
 	def __init__(self):
@@ -28,50 +28,49 @@ class year_guesser:
 			return self.search_and_get_results(title, format, type, sort, first=False)
 		return page1
 	
-	def guess(self, track):
-		res = self.guess_(track)
+	def guess_track(self, track):
+		res = self.guess_track_(track)
 		fn = track.get_filename_path()
 		tit = track.get_title()
 		if res == None or res[0] == -1:
 			print('Year => ????: {}'.format(fn))
+			#print(', None)')
 			return None
 		
 		yr = res[0]
 		lbl= res[1]		
 		
 		print('Year => {}: {}'.format(yr, fn))
+		#print(f", ({yr}, '{lbl}'))")
 		if fn != None:
-			year_guesser_utils.rename(fn, yr, lbl)
+			utils.rename(fn, yr, lbl)
 		return res
 		
 		
-	def guess_(self, track):
+	def guess_track_(self, track):
 		title = track.get_title()
 		fn = track.get_filename_path()
-		
+
+
 		#####
 		# first attempt: search for track as a single
 		#####
 		
 		page1 = self.search_and_get_results(title, type='release', format="Single|12''|10''|7''", sort='year,asc')
 		results = convert_discogs_results(page1)
-		yr_res = year_guesser_utils.get_earliest_matching_hit(results, title, fn)
-		if yr_res != None:
-			return yr_res
-			
+		res1 = utils.get_earliest_matching_hit(results, title, fn)
+
 
 		####################
 		# second attempt: singles but drop anything between brackets (mix name typically)
 		####################
 				
 		# from 'Puff Daddy - I will always love you (Abas remix)' => 'Puff Daddy - I will always love you'
-		title = year_guesser_utils.get_base_title(title)
+		title = utils.get_base_title(title)
 		
 		page1 = self.search_and_get_results(title, type='release', format="Single|12''|10''|7''", sort='year,asc')
 		results = convert_discogs_results(page1)
-		yr_res = year_guesser_utils.get_earliest_matching_hit(results, title, fn)
-		if yr_res != None:
-			return yr_res
+		res2 = utils.get_earliest_matching_hit(results, title, fn)
 
 
 		####################
@@ -79,15 +78,13 @@ class year_guesser:
 		####################
 				
 		# from 'Puff Daddy - I will always love you (Abas remix)' => 'Puff Daddy - I will always love you'
-		title = year_guesser_utils.get_base_title(title)
+		title = utils.get_base_title(title)
 				
 		page1 = self.search_and_get_results(title, type='release', format='', sort='year,asc')
 		results = convert_discogs_results(page1)
-		yr_res = year_guesser_utils.get_earliest_matching_hit(results, title, fn, single=False)
-		if yr_res != None:
-			return yr_res
+		res3 = utils.get_earliest_matching_hit(results, title, fn, single=False)
 
-			
+
 		####################
 		# Fourth attempt: Try to add a 'The' before artists (hack for discogs search engine) or remove it if it exists
 		####################
@@ -100,18 +97,45 @@ class year_guesser:
 		
 		#page1 = self.search_and_get_results(title, type='release', format='', sort='year,asc')
 		#results = convert_discogs_results(page1)
-		#yr_res = year_guesser_utils.get_earliest_matching_hit(results, title, fn, single=False)
-		# if yr_res != None:
-			# return yr_res
+		#yr_res = utils.get_earliest_matching_hit(results, title, fn, single=False)
 		
-		return None
-		
+		return get_min_index(res1, res2, res3)
+			
 	def guess_by_dir(self, dirpath):
 		files = os.listdir(dirpath)
 		for fn in files:
-			tr = track.track( os.path.join(dirpath, fn) )
+			tr = track( os.path.join(dirpath, fn) )
 			#print(tr.title)
-			self.guess(tr)
+			self.guess_track(tr)
+
+	def guess_by_tracklist(self, trklst):		
+		with open(trklst, encoding='utf8') as f:
+			for line in f:
+				line = line.strip()
+				if line != '':
+					tr = track(line)
+					self.guess_track(tr)
+			
+	def guess(self, input):
+		if os.path.exists(input):
+			if os.path.isfile(input):
+				self.guess_by_tracklist(input)
+			else:
+				self.guess_by_dir(input)
+							
+		
+def get_min_index(*args):
+	idx_mn = -1
+	mn = 9999
+	idx = 0
+	for i in args:
+		if i != None and i[0] < mn:
+			idx_mn = idx
+			mn = i[0]
+		idx += 1
+	if idx_mn != -1:
+		return args[idx_mn]
+		
 		
 def load_config():
 	con = None

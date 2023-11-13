@@ -94,28 +94,19 @@ def get_earliest_matching_hit(hits, title, fn, google_res=False,single=True):
 	yr = -1
 	count = -1
 	item = None
-	art1 = title
-	tit1 = title
-	if title.find(' - ') > -1:
-		art1 = title[:title.find(' - ')]
-		tit1 = title[title.find(' - ') + 3:]
 	for i in hits:
 		count += 1
 		if yr == None or i.get('year') == None:
 			continue
 		yr = int(i.get('year'))
 		if yr < lowest_seen_yr:
-			art2 = i.get('title')
-			tit2 = i.get('title')
-			if i.get('title').find(' - ') > -1:
-				art2 = art2[:art2.find(' - ')]
-				tit2 = tit2[tit2.find(' - ') + 3:]
-			if single and two_in(art1, art2) and two_in(tit1, tit2):
+			if single:
+				if two_in(i.get('title'), title, 4):
+					lowest_seen_item = i
+					lowest_seen_yr = yr	
+			else:
 				lowest_seen_item = i
-				lowest_seen_yr = yr
-			elif two_in(art1, art2):
-				lowest_seen_item = i
-				lowest_seen_yr = yr
+				lowest_seen_yr = yr	
 		if count >= top_hits:
 			break
 			

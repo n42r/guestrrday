@@ -17,6 +17,8 @@ class track:
 		self.song_title = None
 		self.id = id
 		self.extract_artist_title()
+		#print(f'("{title}" , {self.__dict__}')
+		
 	
 	# MyFolder\MyAlbum\02. Prince - Musicology (Timelife Mix).mp3
 	def get_filename_path(self):
@@ -51,16 +53,16 @@ class track:
 	def is_track(self):
 		return self.artist != None and self.song_title != None
 		
-	def str(self):
+	def __str__(self):
 		s = ''
 		if self.filename_path != None:
-			s += ' (' + self.filename_path + ')'
-		s = self.title + s
+			s = '(' + self.filename_path + ')'
+		s = f'{self.track}. {self.title} {s}'
 		return s
 		
 	def extract_artist_title(self):	
 		self.title = cleanup_title(self.title)
-		pat_str = '^\s*(\d*)\s*[\W_]?\s*(.+)(\s[\-\_~\：]|[\-\_~\：]\s|\s[\-\_~\：]\s)(.+)$'
+		pat_str = '^\s*(\d*)\s*[\W_]?\s*(.+)(\s[\-\_~\：]|[\-\_~\：]\s|\s[\-\_~\：]\s)(.*)$'
 		pat = re.compile(pat_str)
 		match = re.findall(pat, self.title)
 		if match != []:
@@ -84,6 +86,8 @@ class track:
 			#if self.year != None:
 			#	self.title += ' (' + self.year + ')'
 		else:
+			self.artist = self.title
+			self.song_title = self.title
 			print("Couldn't match: " + self.title)
 	
 def has_music_ext(fn):
@@ -97,7 +101,7 @@ def has_music_ext(fn):
 	return False		
 
 def cleanup_title(title):
-	title = title.lower()
+	#title = title.lower()
 	title = title.replace('[','(')
 	title = title.replace(']',')')
 	title = title.replace('{','(')
@@ -122,5 +126,7 @@ def cleanup_title(title):
 			title = title.replace('   ',' - ', 1)
 		elif title.find('  ') > -1:
 			title = title.replace('  ',' - ', 1)
+		elif title.find('-') > -1:
+			title = title.replace('-',' - ', 1)
 	title = title.replace('"', '')
 	return title.strip()

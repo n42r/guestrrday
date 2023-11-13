@@ -1,6 +1,6 @@
-# Guesterday 
+# Guestrrday 
 
-Guesterday is a toolbox for pop music historians and collectors. These tool have helped sort-out and organize more than 50,000 songs so far.
+Guestrrday is a toolbox for pop music historians and collectors. These tool have helped sort-out and organize more than 50,000 songs so far.
 
 ## Description
 
@@ -12,4 +12,4 @@ I have been working on this project on and off in my free time for about 4 years
 
 ## Contribution
 
-Looking forward to find like-minded collaborators passionate about similar subjects. Email me at: n42r[dot]gt19x[at]aleeas[dot]com
+Looking forward to find like-minded collaborators passionate about similar subjects.
