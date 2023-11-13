@@ -4,8 +4,8 @@ import yaml
 import time
 import os
 
-from guesterday.track import track
-from guesterday import year_guesser_utils
+from guestrrday.track import track
+from guestrrday import year_guesser_utils
 
 class year_guesser:
 	def __init__(self):
@@ -115,8 +115,8 @@ class year_guesser:
 		
 def load_config():
 	con = None
-	if os.path.isfile('.\\guesterday\\config.yaml'):
-		with open('.\\guesterday\\config.yaml', 'r') as stream:
+	if os.path.isfile('.\\guestrrday\\config.yaml'):
+		with open('.\\guestrrday\\config.yaml', 'r') as stream:
 			try:
 				con = yaml.safe_load(stream)
 			except yaml.YAMLError as exc:

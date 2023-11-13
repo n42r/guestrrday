@@ -1,5 +1,5 @@
 import click
-from guesterday.year_guesser import year_guesser
+from guestrrday.year_guesser import year_guesser
 
 @click.command()
 @click.option('--input', default='.', required=True, help='Input directory with music files in it.')
