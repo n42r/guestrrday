@@ -109,12 +109,16 @@ class year_guesser:
 			self.guess_track(tr)
 
 	def guess_by_tracklist(self, trklst):		
+		#outfile = trklst[:trklst.rfind('.')] + trklst[trklst.rfind('.'):]
+		#with open(outfile, encoding='utf8') as f:
+			#pass
 		with open(trklst, encoding='utf8') as f:
 			for line in f:
 				line = line.strip()
 				if line != '':
 					tr = track(line)
 					self.guess_track(tr)
+		
 			
 	def guess(self, input):
 		if os.path.exists(input):
