@@ -164,4 +164,4 @@ def rename(fn, yr=-1, label=None, format='standard_plus_label'):
 			print(e)
 			return
 			
-	return new_fn
+	return os.path.join(path, new_fn)
