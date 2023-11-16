@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 
+tests/misc/
 config.yaml
 mu-test-files/
 __pycache__/
