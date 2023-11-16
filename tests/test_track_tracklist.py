@@ -1,8 +1,8 @@
 import pytest
 from pathlib import Path
 
-from guestrrday.track import track		
-#from guestrrday.track import tracklist
+from guestrrday.track import track, tracklist
+
 
 def test_track_init_correct_clean_title_no_filename():
 	t = track('02. Prince - Musicology (Timelife Mix)')
@@ -72,6 +72,31 @@ def test_track_init_non_exists_filename():
 	assert t.get_title() == 'tests/008. The Isley Brothers - Fight the Power.m4a'
 
 
+
+## Tracklist tests
+
+
+def test_trcklst_add():
+	tl = tracklist()
+	tk = track('Method Man & Redman - Da Rockwilder')
+	tk2 = track('Redman - Time 4 Sum Aksion (Explicit)')
+	tl.add(tk)
+	tl.add(tk2)
+	assert tl.get(0).get_title() == 'Method Man & Redman - Da Rockwilder'
+	assert tl.get(1).get_title() == 'Redman - Time 4 Sum Aksion (Explicit)'
+	
+def test_trcklst_add_no_duplicates():
+	tl = tracklist(eliminate_duplicates = True)
+	print(tl)
+	tk = track('Method Man & Redman - Da Rockwilder')
+	tk2 = track('Redman - Time 4 Sum Aksion (Explicit)')
+	tk3 = track('Method Man & Redman - Da Rockwilder')
+	tl.add(tk)
+	tl.add(tk2)
+	tl.add(tk3)
+	print(tl)
+	assert tl.len() == 2
+	
 
 # def test_many_tracks():
 	# global TRACK_LIST

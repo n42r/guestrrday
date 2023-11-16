@@ -4,32 +4,15 @@ import yaml
 import time
 import os
 
-from guestrrday.track import track
+from guestrrday.track import track, tracklist
 from guestrrday import utils
 
 D_CLIENT = None
 
-def search_and_get_results(title, format, type, sort, first=True):
-	time.sleep( 1 )
-	global D_CLIENT 
-	if D_CLIENT is None:
-		D_CLIENT = discogs_client.Client('ExampleApplication/0.1', user_token=load_config().get('discogs_user_token'))
-	
-	page1 = None
-	results = D_CLIENT.search(title, type=type, format=format, sort=sort)
-	try:
-		page1 = results.page(1)
-	except discogs_client.exceptions.HTTPError as e:
-		print(e)
-		time.sleep( 60 )
-		return search_and_get_results(title, format, type, sort, first=False)
-	return page1
-		
-		
+			
 def guess_track(track):
 	title = track.get_title()
 	fn = track.get_filename_path()
-
 
 	#####
 	# first attempt: search for track as a single
@@ -62,87 +45,68 @@ def guess_track(track):
 	page1 = search_and_get_results(title, type='release', format='', sort='year,asc')
 	results = convert_discogs_results(page1)
 	res3 = utils.get_earliest_matching_hit(results, title, fn, single=False)
+	
+	ls = [i for i in [res1,res2,res3] if i is not None]
+	if len(ls) > 0:
+		mn = min(ls, key=lambda t: t[0])
+		track.year = mn[0]
+		track.label = mn[1]
+	return track
 
 
-	####################
-	# Fourth attempt: Try to add a 'The' before artists (hack for discogs search engine) or remove it if it exists
-	####################
+def guess(input, format='standard_plus_label'):
+	tl = tracklist(location=input)
+	tl.fill()
+	for tr in tl:
+		guess_track(tr)
+		print(tr.year)
+		print(tr.label)
+		new_name = utils.format_output(tr.get_full_title(), tr.year, tr.label, format='standard_plus_label')
+		tr.set_new_name(new_name)
+		print(tr.get_new_name())
+	return flush_results(tl)
 	
-	# title = title.lower()
-	# if title.find('the') == -1:
-		# title = 'the ' + title
-	# else:
-		# title = title.replace('the', '')
+def flush_results(tl):
+	if tl.type == 'dir':
+		rename_tracks(tl)
+	elif tl.type == 'file':
+		writeout_tracklist(tl)
+	else:
+		return [tr.get_new_name() for tr in tl]
 	
-	#page1 = search_and_get_results(title, type='release', format='', sort='year,asc')
-	#results = convert_discogs_results(page1)
-	#yr_res = utils.get_earliest_matching_hit(results, title, fn, single=False)
-	
-	return get_min_index(res1, res2, res3)
-		
-		
-def guess_by_dir(dirpath, format='standard_plus_label'):
-	files = os.listdir(dirpath)
-	for fn in files:
-		tr = track( os.path.join(dirpath, fn) )
-		res = guess_track(tr)
-		if res is not None:
-			yr = res[0]
-			lbl = res[1]
-			new_name = utils.rename(os.path.join(dirpath, fn), yr, lbl, format='standard_plus_label')
-			print(new_name)
-		else:
-			print(os.path.join(dirpath, fn))
-			
+def rename_tracks(tl):
+	for tr in tl:
+		if tr.year != None:
+			utils.rename(tr.get_filename_path(), tr.year, tr.label)
 
-
-def guess_by_tracklist(trklst, format='standard_plus_label'):		
-	out  = ''
-	with open(trklst, encoding='utf8') as f:
-		for line in f:
-			line = line.strip()
-			if line == '' or line[0] == '#':
-				out += f'{line}\n' 
-				continue
-			tr = track(line)
-			res = guess_track(tr)
-			if res is not None:
-				yr = res[0]
-				lbl = res[1]
-				new_title = utils.format_output(tr.get_full_title(), yr, lbl, format='standard_plus_label')
-				out += f'{new_title}\n'
-				print(new_title)
-			else:
-				print(tr.get_full_title())
-	
-	outfile = trklst + '-guessed'
-	if trklst.find('.') > -1:
-		outfile = trklst[:trklst.rfind('.')] + '-guessed' + trklst[trklst.rfind('.'):]
+def writeout_tracklist(tl):
+	ext = tl.location[tl.location.rfind('.'):]
+	base_name = tl.location[:tl.location.rfind('.')]
+	if '.' not in tl.location:
+		ext = ''
+		base_name = tl.location
+	outfile = f'{base_name}-guessed.{ext}'
+	out = [tr.get_new_name() for tr in tl ]
 	with open(outfile, 'w', encoding='utf8') as f:
-		f.write(out)
+		f.write('\n'.join(out))
 	f.close()
-										
-				
-def guess(input):
-	if os.path.exists(input):
-		if os.path.isfile(input):
-			guess_by_tracklist(input)
-		else:
-			guess_by_dir(input)
-							
+	
 
-def get_min_index(*args):
-	idx_mn = -1
-	mn = 9999
-	idx = 0
-	for i in args:
-		if i != None and i[0] < mn:
-			idx_mn = idx
-			mn = i[0]
-		idx += 1
-	if idx_mn != -1:
-		return args[idx_mn]
-		
+def search_and_get_results(title, format, type, sort, first=True):
+	time.sleep( 1 )
+	global D_CLIENT 
+	if D_CLIENT is None:
+		D_CLIENT = discogs_client.Client('ExampleApplication/0.1', user_token=load_config().get('discogs_user_token'))
+	page1 = None
+	results = D_CLIENT.search(title, type=type, format=format, sort=sort)
+	try:
+		page1 = results.page(1)
+	except discogs_client.exceptions.HTTPError as e:
+		print(e)
+		time.sleep( 60 )
+		return search_and_get_results(title, format, type, sort, first=False)
+	return page1
+
 		
 def load_config():
 	con = None

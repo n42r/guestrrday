@@ -5,17 +5,24 @@ from nltk.corpus import stopwords
 import string
 import unidecode
 
-
+def has_music_ext(fn):
+	ext_idx = fn.rfind('.')
+	if ext_idx > -1:
+		ext = fn[ext_idx + 1:]
+		#f_char = ext[0]
+		audio_ext_list = ['mp3', 'flac', 'm4a', 'ogg', 'opus', 'wav', 'wma', 'aif', 'aiff']
+		if ext in audio_ext_list:
+			return True
+	return False	
+	
 def get_base_title(title):
 	dash_idx = title.find(' - ')
 	idx = title.find('[', dash_idx)
 	if idx > -1:
 		title = title[0:idx]
-
 	idx = title.find('(', dash_idx)
 	if idx > -1:
 		title = title[0:idx]
-	
 	tsplit = title.split(' - ')
 	if len(tsplit) == 2:
 		[artist, tit] = tsplit
@@ -26,7 +33,6 @@ def get_base_title(title):
 		if len(temp_artist.split(' ')) > 1:
 			artist = temp_artist
 		title = artist + ' - ' + tit
-	
 	return title
 
 def remove_blacklist_chars(fn):
@@ -41,12 +47,12 @@ def remove_accents(lst):
 	return [unidecode.unidecode(word) for word in lst]
 
 def replace_symbols_with_spaces(text):
-	pat = re.compile('[^\w^\-]')
-	text = re.sub('[^\w^\-]', ' ', text)
-	text = re.sub('[\W\s][\d\-]+[\W\s]', ' ', text)
-	dashed = re.findall('\w+\-\w+', text)	
+	pat = re.compile(r'[^\w^\-]')
+	text = re.sub(r'[^\w^\-]', ' ', text)
+	text = re.sub(r'[\W\s][\d\-]+[\W\s]', ' ', text)
+	dashed = re.findall(r'\w+\-\w+', text)	
 	dashed = ' '.join(dashed)
-	dashed = re.sub('\-', ' ', dashed)
+	dashed = re.sub(r'\-', ' ', dashed)
 	text = text + ' ' + dashed
 	text = re.sub(' +', ' ', text)
 	return text
@@ -55,17 +61,9 @@ def replace_symbols_with_spaces(text):
 def two_in(st1, st2, limit=2):
 	st1 = replace_symbols_with_spaces(st1.lower().strip())
 	st2 = replace_symbols_with_spaces(st2.lower().strip())
-	return two_in_helper(st1, st2, limit=limit) #and two_in_helper(st2, st1)
-
-# check that atleast two of the words in lst_pre occur in string st
-def two_in_helper(st1, st2, limit=2):
-	st1_words_init = st1.split(' ')
-	st2_words_init = st2.split(' ')
 	
-	count = 0 
-	
-	st1_words = filter_out_stopwords_punc(st1_words_init)
-	st2_words = filter_out_stopwords_punc(st2_words_init)
+	st1_words = filter_out_stopwords_punc(st1.split(' '))
+	st2_words = filter_out_stopwords_punc(st2.split(' '))
 	
 	if len(st1_words) == 0 or len(st2_words) == 0:
 		st1_words = st1_words_init
@@ -74,59 +72,32 @@ def two_in_helper(st1, st2, limit=2):
 	st1_words = remove_accents(st1_words)
 	st2_words = remove_accents(st2_words)
 
-	limit_ = min(len(st1_words), len(st2_words))
-	if limit_ < limit:
-		limit = limit_
+	limit = min(len(st1_words), len(st2_words), limit)
 	
-	for word in st1_words:
-		if word in st2_words:
-			count += 1
-	
-	if count >= limit:
-		return True
-	else:
-		return False
-	
-def get_earliest_matching_hit(hits, title, fn, google_res=False,single=True):
-	top_hits = 10
-	lowest_seen_yr = 3000
-	lowest_seen_item = None
-	yr = -1
-	count = -1
-	item = None
-	for i in hits:
-		count += 1
-		if yr == None or i.get('year') == None:
-			continue
-		yr = int(i.get('year'))
-		if yr < lowest_seen_yr:
-			if single:
-				if two_in(i.get('title'), title, 4):
-					lowest_seen_item = i
-					lowest_seen_yr = yr	
-			else:
-				lowest_seen_item = i
-				lowest_seen_yr = yr	
-		if count >= top_hits:
-			break
-			
-	
-	item = lowest_seen_item
-	yr = lowest_seen_yr
-	
-	if yr == -1 or yr == 3000 or item == None:
-		return None
-	
-	lbl = item.get('label')
-	if lbl != None:
-		words = lbl.split()
-		if len(words) > 3:
-			words = words[0:3]
-		lbl = ' '.join(words)
-	return (yr, lbl)
+	intersection = len(set(st1_words) & set(st2_words))
 
-def format_output(title, yr=-1, label=None, format='standard_plus_label'):
-	if yr == -1 and label == None:
+	return intersection >= limit
+	
+def get_earliest_matching_hit(hits, title, fn, top_hits = 10, google_res=False,single=True):
+	num_of_words_to_accept = 1
+	if single:
+		num_of_words_to_accept = 4
+
+	hits = [h for h in hits if h is not None and h.get('year') is not None]
+	hits = hits[0 : top_hits - 1]
+	hits.sort(key=lambda i: int(i.get('year')))
+	 
+	for h in hits:
+		if two_in(title, h.get('title'), num_of_words_to_accept):
+			lbl = h.get('label')
+			if lbl != None:
+				words = lbl.split()[:3]
+				lbl = ' '.join(words)
+			yr = int(h.get('year'))
+			return (yr, lbl)
+
+def format_output(title, yr=None, label=None, format='standard_plus_label'):
+	if yr == None or yr == -1:
 		return title
 	new_title = ''
 	if format == 'standard_plus_label' and label == None:
