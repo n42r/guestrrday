@@ -9,27 +9,17 @@ from guestrrday import utils
 
 D_CLIENT = None
 
-def search_and_get_results(title, format, type, sort, first=True):
-	time.sleep( 1 )
-	global D_CLIENT 
-	if D_CLIENT is None:
-		D_CLIENT = discogs_client.Client('ExampleApplication/0.1', user_token=load_config().get('discogs_user_token'))
-	
-	page1 = None
-	results = D_CLIENT.search(title, type=type, format=format, sort=sort)
-	try:
-		page1 = results.page(1)
-	except discogs_client.exceptions.HTTPError as e:
-		print(e)
-		time.sleep( 60 )
-		return search_and_get_results(title, format, type, sort, first=False)
-	return page1
-		
-		
+def guess(input):
+	if os.path.exists(input):
+		if os.path.isfile(input):
+			guess_by_tracklist(input)
+		else:
+			guess_by_dir(input)
+			
+			
 def guess_track(track):
 	title = track.get_title()
 	fn = track.get_filename_path()
-
 
 	#####
 	# first attempt: search for track as a single
@@ -94,8 +84,6 @@ def guess_by_dir(dirpath, format='standard_plus_label'):
 		else:
 			print(os.path.join(dirpath, fn))
 			
-
-
 def guess_by_tracklist(trklst, format='standard_plus_label'):		
 	out  = ''
 	with open(trklst, encoding='utf8') as f:
@@ -121,15 +109,23 @@ def guess_by_tracklist(trklst, format='standard_plus_label'):
 	with open(outfile, 'w', encoding='utf8') as f:
 		f.write(out)
 	f.close()
-										
-				
-def guess(input):
-	if os.path.exists(input):
-		if os.path.isfile(input):
-			guess_by_tracklist(input)
-		else:
-			guess_by_dir(input)
-							
+	
+
+def search_and_get_results(title, format, type, sort, first=True):
+	time.sleep( 1 )
+	global D_CLIENT 
+	if D_CLIENT is None:
+		D_CLIENT = discogs_client.Client('ExampleApplication/0.1', user_token=load_config().get('discogs_user_token'))
+	page1 = None
+	results = D_CLIENT.search(title, type=type, format=format, sort=sort)
+	try:
+		page1 = results.page(1)
+	except discogs_client.exceptions.HTTPError as e:
+		print(e)
+		time.sleep( 60 )
+		return search_and_get_results(title, format, type, sort, first=False)
+	return page1
+
 
 def get_min_index(*args):
 	idx_mn = -1

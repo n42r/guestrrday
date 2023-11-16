@@ -18,7 +18,6 @@ class track:
 		self.song_title = None
 		self.id = id
 		self.extract_artist_title()
-		#print(f'("{title}" , {self.__dict__}')
 		
 	
 	# MyFolder\MyAlbum\02. Prince - Musicology (Timelife Mix).mp3
@@ -66,7 +65,7 @@ class track:
 		if self.filename_path != None:
 			return self.filename_path
 		else:
-			return get_full_title
+			return self.get_full_title()
 		
 		
 	def extract_artist_title(self):	

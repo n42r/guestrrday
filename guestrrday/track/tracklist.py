@@ -20,8 +20,13 @@ class tracklist:
 
 	
 	"""
-	def __init__(self, trck_lst = [], location = '', eliminate_duplicates = False):
-		self.__trck_lst = trck_lst
+	def __init__(self, trck_lst = None, location = None, eliminate_duplicates = False):
+		if trck_lst is None:
+			self.__trck_lst = []
+		else:
+			self.__trck_lst = trck_lst
+		if location is None:
+			location = ''
 		self.location = location
 		self.eliminate_duplicates = eliminate_duplicates
 		self.__seen = set()
@@ -45,5 +50,5 @@ class tracklist:
 	def __str__(self):
 		l = []
 		for i in self.__trck_lst:
-			l.append(i.str())
+			l.append(str(i))
 		return str(l)

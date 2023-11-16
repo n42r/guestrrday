@@ -41,12 +41,12 @@ def remove_accents(lst):
 	return [unidecode.unidecode(word) for word in lst]
 
 def replace_symbols_with_spaces(text):
-	pat = re.compile('[^\w^\-]')
-	text = re.sub('[^\w^\-]', ' ', text)
-	text = re.sub('[\W\s][\d\-]+[\W\s]', ' ', text)
-	dashed = re.findall('\w+\-\w+', text)	
+	pat = re.compile(r'[^\w^\-]')
+	text = re.sub(r'[^\w^\-]', ' ', text)
+	text = re.sub(r'[\W\s][\d\-]+[\W\s]', ' ', text)
+	dashed = re.findall(r'\w+\-\w+', text)	
 	dashed = ' '.join(dashed)
-	dashed = re.sub('\-', ' ', dashed)
+	dashed = re.sub(r'\-', ' ', dashed)
 	text = text + ' ' + dashed
 	text = re.sub(' +', ' ', text)
 	return text
