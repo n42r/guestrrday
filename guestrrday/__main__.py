@@ -2,14 +2,14 @@ import click
 from guestrrday.guestrrday import guess
 
 @click.command()
-@click.option('--input', required=True, help='Input directory with music files or text file with tracklist.')
+@click.option('--input', required=True, help='Directory with music files or text file with tracklist, or comma separated list of tracks.')
 def main(input):
-	"""Toolset for the digital music collector and historian:
-		- Get years of tracks in bulk, 
-		- Generate a youtube playlist from a tracklisk (forthcoming)
-		- And several other tools to come."""
+	"""Tool for guessing the year and record label of music tracks
 	
-	guess(input)
+	Args:
+		input (str): Directory with music files or text file with tracklist, or comma separated list of tracks. Just give it what you need.
+	"""
+	return guess(input)
 
 
 if __name__ == "__main__":

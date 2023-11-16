@@ -4,7 +4,18 @@ import unidecode
 from guestrrday import utils
 
 class track:
+
 	def __init__(self, title):
+		"""Init for the class track
+		
+		Note: This is not only simple setter init, it includes on its last line a call to a function (extract_artist_title) that tries to sanitize messy track names and extract the artist and title and mix name separately. This updates some of the attributes such as artist and title
+			
+		Args:
+			title (str): This can be either a valid filename on the system or a textual song title. The code will guess which based on the input, you don't have to worry about that.
+		
+		Returns:
+			list: list of objects that containt attributes as well as a dict called data which includes most of the info (see convert_discogs_results below)
+		"""	
 		self.filename_path = None
 		if os.path.exists(title) and os.path.isfile(title) and utils.has_music_ext(title):
 			base = os.path.basename(title)
@@ -22,36 +33,76 @@ class track:
 		self.extract_artist_title()
 		
 	
-	# MyFolder\MyAlbum\02. Prince - Musicology (Timelife Mix).mp3
+	
 	def get_filename_path(self):
+		"""Get filename path
+		
+		Example:
+			MyFolder/MyAlbum/02. Prince - Musicology (Timelife Mix).mp3
+			
+		"""	
 		return self.filename_path
 
-	# 002. Prince - Musicology (Timelife Mix)
+	
 	def get_full_title(self):
+		"""Get full title (including track num, if any)
+		
+		Example:
+			002. Prince - Musicology (Timelife Mix)
+
+		"""	
 		tit = self.title
 		if self.track is not None:
 			tr = str(self.track).zfill(3)
 			tit = f'{tr}. {tit}'
 		return tit
 		
-	# Prince - Musicology (Timelife Mix)
+	
 	def get_title(self):
+		"""Get title (without track num)
+		
+		Example:
+			Prince - Musicology (Timelife Mix)
+			
+		"""		
 		return self.title
 	
-	# Prince
 	def get_artist(self):
+		"""Get artist
+		
+		Example:
+			Prince
+			
+		"""			
 		return self.artist
 	
-	# Musicology
+
 	def get_song_title(self):
+		"""Get song title
+		
+		Example:
+			Musicology
+			
+		"""		
 		return self.song_title
 
-	# 2
 	def get_track(self):
+		"""Get track num
+		
+		Example:
+			2
+			
+		"""			
 		return self.track
 	
-	# Timelife Mix
+	
 	def get_qualifier(self):
+		"""Get track qualifier or mix name, or whatever is in brackets at the end of the file (.)
+		
+		Example:
+			Timelife Mix
+			
+		"""	
 		return self.qualifier	
 	
 	def get_year(self):
@@ -63,13 +114,19 @@ class track:
 	def get_id(self):
 		return self.id
 	
-	def is_track(self):
-		return self.artist != None and self.song_title != None
+	# def is_track(self):
+		# return self.artist != None and self.song_title != None
 	
 	def get_new_name(self):
 		return self.new_title
 		
 	def set_new_name(self, new):
+		"""Set the new filename (or title, in case of a text file tracklist) of the song with the year/label
+		
+		Args:
+			new (str): new base file name (does not include path). The path is assumed the same as original, i.e., files are renamed		
+			
+		"""		
 		self.new_title = new
 		if self.filename_path is not None:
 			path = os.path.dirname(self.filename_path)
@@ -85,6 +142,15 @@ class track:
 	
 		
 	def extract_artist_title(self):	
+		"""The function is there to try as best as possible to sanitize and detect the artist name and song title, etc.
+		
+		Args:
+			None: It operates on the existing attributes in self
+		
+		Returns:
+			None: It updates and reflects on the state of the current object 
+			
+		"""		
 		self.title = cleanup_title(self.title)
 		pat_str = r'^\s*(\d*)\s*[\W_]?\s*(.+)(?:(\s[\-\_~\：]|[\-\_~\：]\s|\s[\-\_~\：]\s))(.*)$'
 		pat = re.compile(pat_str)
@@ -122,6 +188,16 @@ class track:
 		
 
 def cleanup_title(title):
+	"""Part of extract_artist_title, this is also used to sanitize dirty title, music filenames, etc.
+	
+	Args:
+		title (str): full song title 
+	
+	Returns:
+		str: sanitized full song title
+		
+	"""		
+
 	#title = title.lower()
 	title = title.replace('[','(')
 	title = title.replace(']',')')

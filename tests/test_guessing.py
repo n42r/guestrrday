@@ -64,32 +64,15 @@ def test_guess_directory_all_succeed():
 	Path(in2).touch()
 	
 	guess('tests/temp-test-files/')
-	#guess_by_dir('tests/temp-test-files/')
 	
 	assert Path(out).exists()
 	assert Path(out2).exists()
 	shutil.rmtree('tests/temp-test-files/')
 
 
-# def test_guess_directory_all_fail():
-	# Path('tests/temp-test-files/').mkdir()
-	# in1 = 'tests/temp-test-files/019. Bill Connors Trio A Pedal 1985.m4a'
-	# out = 'tests/temp-test-files/019. Bill Connors Trio A Pedal 1985.m4a'
-	# Path(in1).touch()
-	# in2 = "tests/temp-test-files/096. Left Hand Frank and his Blues Band, Blues won't let me be"
-	# out2 = "tests/temp-test-files/096. Left Hand Frank and his Blues Band, Blues won't let me be"
-	# Path(in2).touch()
-	# guess_by_dir('tests/temp-test-files/')
-	
-	# assert Path(out).exists() 
-	# assert Path(out2).exists()
-	# shutil.rmtree('tests/temp-test-files/')
-
-
 def test_guess_tracklist_all_succeed():
 	Path('tests/temp-test-files/').mkdir()
 	in1 = 'tests/temp-test-files/tracklist'
-	#Path(in1).touch()	
 	with open(in1, 'w', encoding='utf8') as f:
 		f.write('003. Skyy - High\n')
 		f.write('028. The Roots - The Next Movement\n')
@@ -99,8 +82,7 @@ def test_guess_tracklist_all_succeed():
 	lines_out = ['003. Skyy - High (Derby, 1980)', '028. The Roots - The Next Movement (MCA Records, 1999)']
 	
 	guess(in1)
-	#guess_by_tracklist(in1)
-
+	
 	idx = 0
 	with open(out1, encoding='utf8') as f:
 		for line in f:
@@ -113,7 +95,6 @@ def test_guess_tracklist_all_succeed():
 def test_guess_tracklist_all_fail():
 	Path('tests/temp-test-files/').mkdir()
 	in1 = 'tests/temp-test-files/tracklist'
-	#Path(in1).touch()	
 	with open(in1, 'w', encoding='utf8') as f:
 		f.write('019. Bill Connors Trio A Pedal 1985\n')
 		f.write("066. BIGTOWN PLAYBOY LEddie Taylor\n")
@@ -122,7 +103,6 @@ def test_guess_tracklist_all_fail():
 	out1= in1 + '-guessed'
 	lines_out = ['019. Bill Connors Trio A Pedal 1985', "066. BIGTOWN PLAYBOY LEddie Taylor"]
 	
-	#guess_by_tracklist(in1)
 	guess(in1)
 
 	idx = 0
@@ -135,11 +115,3 @@ def test_guess_tracklist_all_fail():
 # def test_clean_up_in_case_fail():
 	# shutil.rmtree('tests/temp-test-files/',ignore_errors=True)
 	
-
-# def test_many_tracks():
-	# global GUESS_LIST
-	# for i in GUESS_LIST:
-		# inp, out  = i
-		# tr = track(inp)
-		# assert guess_track(tr) == out
-		
