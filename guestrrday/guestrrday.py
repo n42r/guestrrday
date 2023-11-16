@@ -9,8 +9,35 @@ from guestrrday import utils
 
 D_CLIENT = None
 
+def guess(input, format='standard_plus_label'):
+	"""Entrypoint into the guessing funtionality
+	
+	Args:
+		input (str): Directory with music files or text file with tracklist, or comma separated list of tracks.
+	
+	Returns:
+		str: in the case of a comma separated list, and None otherwise 
+	"""
+	tl = tracklist(location=input)
+	tl.fill()
+	for tr in tl:
+		discogs_guess_track(tr)
+		new_name = utils.format_output(tr.get_full_title(), tr.year, tr.label, format='standard_plus_label')
+		tr.set_new_name(new_name)
+		print(tr.get_new_name())
+	return flush_results(tl)
+
 			
-def guess_track(track):
+def discogs_guess_track(track):
+	"""Function that queries discogs and searches for the earliest matching hit.
+	
+	Args:
+		track (guestrrday.track.track): Track object that incapsulated data/behaviour related to a single track.
+	
+	Returns:
+		guestrrday.track.track: updates the original track in the args with year and label and returns it (year and label are None in case no year is found).
+	"""
+
 	title = track.get_title()
 	fn = track.get_filename_path()
 
@@ -20,7 +47,7 @@ def guess_track(track):
 	
 	page1 = search_and_get_results(title, type='release', format="Single|12''|10''|7''", sort='year,asc')
 	results = convert_discogs_results(page1)
-	res1 = utils.get_earliest_matching_hit(results, title, fn)
+	res1 = utils.get_earliest_matching_hit(results, title)
 
 
 	####################
@@ -32,7 +59,7 @@ def guess_track(track):
 	
 	page1 = search_and_get_results(title, type='release', format="Single|12''|10''|7''", sort='year,asc')
 	results = convert_discogs_results(page1)
-	res2 = utils.get_earliest_matching_hit(results, title, fn)
+	res2 = utils.get_earliest_matching_hit(results, title)
 
 
 	####################
@@ -44,7 +71,7 @@ def guess_track(track):
 			
 	page1 = search_and_get_results(title, type='release', format='', sort='year,asc')
 	results = convert_discogs_results(page1)
-	res3 = utils.get_earliest_matching_hit(results, title, fn, single=False)
+	res3 = utils.get_earliest_matching_hit(results, title, single=False)
 	
 	ls = [i for i in [res1,res2,res3] if i is not None]
 	if len(ls) > 0:
@@ -54,19 +81,16 @@ def guess_track(track):
 	return track
 
 
-def guess(input, format='standard_plus_label'):
-	tl = tracklist(location=input)
-	tl.fill()
-	for tr in tl:
-		guess_track(tr)
-		print(tr.year)
-		print(tr.label)
-		new_name = utils.format_output(tr.get_full_title(), tr.year, tr.label, format='standard_plus_label')
-		tr.set_new_name(new_name)
-		print(tr.get_new_name())
-	return flush_results(tl)
 	
 def flush_results(tl):
+	"""Flush out results, be it print in a file, rename files in a dir, or return comma separated list.
+	
+	Args:
+		tl (guestrrday.track.tracklist): Tracklist object that incapsulated a list of track objects.
+	
+	Returns:
+		str: in the case of a comma separated list, and None otherwise 
+	"""
 	if tl.type == 'dir':
 		rename_tracks(tl)
 	elif tl.type == 'file':
@@ -75,11 +99,28 @@ def flush_results(tl):
 		return [tr.get_new_name() for tr in tl]
 	
 def rename_tracks(tl):
+	"""Rename music files based on guessed dates / labels.
+	
+	Args:
+		tl (guestrrday.track.tracklist): Tracklist object that incapsulated a list of track objects.
+	
+	Returns:
+		None
+	"""
+
 	for tr in tl:
-		if tr.year != None:
-			utils.rename(tr.get_filename_path(), tr.year, tr.label)
+		if tr.year != None:			
+			utils.rename(tr)
 
 def writeout_tracklist(tl):
+	"""Write out a new file printing each trackname in the origianl file along with its guessed date / label.
+	
+	Args:
+		tl (guestrrday.track.tracklist): Tracklist object that incapsulated a list of track objects.
+	
+	Returns:
+		None
+	"""
 	ext = tl.location[tl.location.rfind('.'):]
 	base_name = tl.location[:tl.location.rfind('.')]
 	if '.' not in tl.location:
@@ -93,10 +134,23 @@ def writeout_tracklist(tl):
 	
 
 def search_and_get_results(title, format, type, sort, first=True):
+	"""Function to query the discogs API and manage throttling and returning a list of results.
+	
+	Args:
+		title (str): The track title and artist name
+		format (str): The format of the medium to search for. Values used here are one of: ["Single|12''|10''|7''" or ""] where the first specify that we are searching for singles only and the second puts no restriction on format.
+		type (str): The type of entities to consider. The one used here is "release", other options on discogs are "artist", "label", etc
+		sort (str): Sorting order and condition. The value used here is "year,asc"
+		first (bool): Flag used for managing API throttling restriction and sleeping. Don't modify!
+	
+	Returns:
+		list: list of objects that containt attributes as well as a dict called data which includes most of the info (see convert_discogs_results below)
+	"""
+
 	time.sleep( 1 )
 	global D_CLIENT 
 	if D_CLIENT is None:
-		D_CLIENT = discogs_client.Client('ExampleApplication/0.1', user_token=load_config().get('discogs_user_token'))
+		D_CLIENT = discogs_client.Client('ExampleApplication/0.1', user_token=load_config())
 	page1 = None
 	results = D_CLIENT.search(title, type=type, format=format, sort=sort)
 	try:
@@ -109,6 +163,14 @@ def search_and_get_results(title, format, type, sort, first=True):
 
 		
 def load_config():
+	"""Function to load the config file and read the discogs user token.
+	
+	Args:
+		None
+	Returns:
+		str: discogs_user_token
+	"""
+
 	con = None
 	if os.path.isfile('.\\guestrrday\\config.yaml'):
 		with open('.\\guestrrday\\config.yaml', 'r') as stream:
@@ -121,10 +183,19 @@ def load_config():
 	
 	if con.get('discogs_user_token') == None:
 		raise Exception("You must provide a discogs_user_token inside 'config.yaml' to use discogs functions.")
-	return con
+	return con.get('discogs_user_token')
 
 
 def convert_discogs_results(page):
+	"""Convert discogs heterogenous pythonic results into a simple homogenous dict
+	
+	Args:
+		list (obj): results returned by the discogs_client
+		
+	Returns:
+		dict: contaning the year, title, and label of each hit
+	"""
+
 	res = []
 	for i in page:
 		item = {}
