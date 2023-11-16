@@ -1,11 +1,12 @@
 import re
 import os.path
 import unidecode
+from guestrrday import utils
 
 class track:
-	def __init__(self, title, id=None):
+	def __init__(self, title):
 		self.filename_path = None
-		if os.path.exists(title) and os.path.isfile(title) and has_music_ext(title):
+		if os.path.exists(title) and os.path.isfile(title) and utils.has_music_ext(title):
 			base = os.path.basename(title)
 			self.filename_path = title
 			title = base[ : base.rfind('.')]
@@ -13,10 +14,11 @@ class track:
 		self.track = None
 		self.artist = None
 		self.year = None
-		#self.label = None
+		self.label = None
 		self.qualifier = None
 		self.song_title = None
 		self.id = id
+		self.new_title = None
 		self.extract_artist_title()
 		
 	
@@ -55,18 +57,32 @@ class track:
 	def get_year(self):
 		return self.year
 	
+	def get_label(self):
+		return self.label
+		
 	def get_id(self):
 		return self.id
 	
 	def is_track(self):
 		return self.artist != None and self.song_title != None
+	
+	def get_new_name(self):
+		return self.new_title
 		
+	def set_new_name(self, new):
+		self.new_title = new
+		if self.filename_path is not None:
+			path = os.path.dirname(self.filename_path)
+			base = os.path.basename(self.filename_path)
+			ext = base[ base.rfind('.') + 1 : ]
+			self.new_title = os.path.join(path, f'{self.new_title}.{ext}')			
+	
 	def __str__(self):
 		if self.filename_path != None:
 			return self.filename_path
 		else:
 			return self.get_full_title()
-		
+	
 		
 	def extract_artist_title(self):	
 		self.title = cleanup_title(self.title)
@@ -103,16 +119,7 @@ class track:
 				#print("Couldn't match: " + self.title)
 			self.artist = self.title
 			self.song_title = self.title
-	
-def has_music_ext(fn):
-	ext_idx = fn.rfind('.')
-	if ext_idx > -1:
-		ext = fn[ext_idx + 1:]
-		#f_char = ext[0]
-		audio_ext_list = ['mp3', 'flac', 'm4a', 'ogg', 'opus', 'wav', 'wma', 'aif', 'aiff']
-		if ext in audio_ext_list:
-			return True
-	return False		
+		
 
 def cleanup_title(title):
 	#title = title.lower()
