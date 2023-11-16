@@ -63,11 +63,11 @@ class track:
 		return self.artist != None and self.song_title != None
 		
 	def __str__(self):
-		s = ''
 		if self.filename_path != None:
-			s = '(' + self.filename_path + ')'
-		s = f'{self.track}. {self.title} {s}'
-		return s
+			return self.filename_path
+		else:
+			return get_full_title
+		
 		
 	def extract_artist_title(self):	
 		self.title = cleanup_title(self.title)
