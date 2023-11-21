@@ -96,8 +96,8 @@ def flush_results(tl):
         rename_tracks(tl)
     elif tl.type == "file":
         writeout_tracklist(tl)
-    else:
-        print([tr.get_new_name() for tr in tl])
+    #else:
+    #    print(', '.join([tr.get_new_name() for tr in tl]))
 
 
 def rename_tracks(tl):
