@@ -24,7 +24,7 @@ Example:
 
 ```Ike & Tina Turner - A Love Like Yours (Don't Come Knocking Everyday) (London American, 1966)```
 
-The script queries discogs and google and includes several tricks to guess a good estimate of the year of release.
+The script queries discogs.com and includes some tweaks to increase the precision and accuracy of the search (see [Why This Tool?](why-this-tool) section below).
 
 The tool will rename files if the input is a directory, and will create a new textfile in the case of file, and will print to stdout in case of cli args.
 
