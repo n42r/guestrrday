@@ -1,5 +1,4 @@
 import os
-import time
 import re
 from nltk.corpus import stopwords
 import string
@@ -98,7 +97,6 @@ def replace_symbols_with_spaces(text):
 	Returns:
 		str: Text with all symbols removed
 	"""
-	pat = re.compile(r'[^\w^\-]')
 	text = re.sub(r'[^\w^\-]', ' ', text)
 	text = re.sub(r'[\W\s][\d\-]+[\W\s]', ' ', text)
 	dashed = re.findall(r'\w+\-\w+', text)	
@@ -127,8 +125,8 @@ def two_in(st1, st2, limit=2):
 	st2_words = filter_out_stopwords_punc(st2.split(' '))
 	
 	if len(st1_words) == 0 or len(st2_words) == 0:
-		st1_words = st1_words_init
-		st2_words = st2_words_init
+		st1_words = st1
+		st2_words = st2
 	
 	st1_words = remove_accents(st1_words)
 	st2_words = remove_accents(st2_words)
@@ -171,14 +169,14 @@ def get_earliest_matching_hit(hits, title, top_hits = 10, google_res=False,singl
 			yr = int(h.get('year'))
 			return (yr, lbl)
 
-def format_output(title, yr=None, label=None, format='standard_plus_label'):
+def format_output(title, yr=None, label=None, form='standard_plus_label'):
 	"""Given the found year and label format the full song title adding to it the new info. There are three formats supported.
 	
 	Args:
 		title (str): The original full song title.
 		yr (int): The guessed year 
 		lable (str): The guessed record label
-		format (str): Enum of three different formats. "standard_plus_label" (default) appends (year, label) to the end of the song title, "standard" drops the label, and [anything else] it uses a format I personally used in the past: "YYYY -- FULL-SONG-TITLE {Label}"
+		form (str): Enum of three different formats. "standard_plus_label" (default) appends (year, label) to the end of the song title, "standard" drops the label, and [anything else] it uses a format I personally used in the past: "YYYY -- FULL-SONG-TITLE {Label}"
 	
 	Returns:
 		str: The formated name
@@ -186,11 +184,11 @@ def format_output(title, yr=None, label=None, format='standard_plus_label'):
 	if yr == None or yr == -1:
 		return title
 	new_title = ''
-	if format == 'standard_plus_label' and label == None:
-		format = 'standard'
-	if format == 'standard_plus_label':
+	if form == 'standard_plus_label' and label == None:
+		form = 'standard'
+	if form == 'standard_plus_label':
 		new_title = '{} ({}, {})'.format(title , label, yr)
-	elif format == 'standard':
+	elif form == 'standard':
 		new_title = '{} ({})'.format(title , yr)
 	else:
 		# the guesterday chronological format
@@ -213,13 +211,13 @@ def rename(tr):
 	if new_fn is not None and old_fn is not None and old_fn != new_fn:
 		try:
 			os.rename( old_fn, new_fn )
-		except Exception as e:
+		except OSError as e:
 			path = os.path.dirname(new_fn)
 			new_fn = remove_blacklist_chars(os.path.basename(new_fn))
 			try:
 				os.rename( old_fn, os.path.join(path, new_fn) )
-			except Exception as e:
-				print(e)
+			except OSError as e2:
+				print(e2)
 				return
 		return os.path.join(path, new_fn)
 	return old_fn

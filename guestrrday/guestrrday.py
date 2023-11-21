@@ -1,4 +1,3 @@
-from datetime import datetime
 import discogs_client
 import yaml
 import time
@@ -9,43 +8,42 @@ from guestrrday import utils
 
 D_CLIENT = None
 
-def guess(input, format='standard_plus_label'):
+def guess(inp, formats='standard_plus_label'):
 	"""Entrypoint into the guessing funtionality
 	
 	Args:
-		input (str): Directory with music files or text file with tracklist, or comma separated list of tracks.
+		in (str): Directory with music files or text file with tracklist, or comma separated list of tracks.
 	
 	Returns:
 		str: in the case of a comma separated list, and None otherwise 
 	"""
-	tl = tracklist(location=input)
+	tl = tracklist(location=inp)
 	tl.fill()
 	for tr in tl:
 		discogs_guess_track(tr)
-		new_name = utils.format_output(tr.get_full_title(), tr.year, tr.label, format='standard_plus_label')
+		new_name = utils.format_output(tr.get_full_title(), tr.year, tr.label, form='standard_plus_label')
 		tr.set_new_name(new_name)
 		print(tr.get_new_name())
 	return flush_results(tl)
 
 			
-def discogs_guess_track(track):
+def discogs_guess_track(trck):
 	"""Function that queries discogs and searches for the earliest matching hit.
 	
 	Args:
-		track (guestrrday.track.track): Track object that incapsulated data/behaviour related to a single track.
+		trck (guestrrday.track.track): Track object that incapsulated data/behaviour related to a single track.
 	
 	Returns:
 		guestrrday.track.track: updates the original track in the args with year and label and returns it (year and label are None in case no year is found).
 	"""
 
-	title = track.get_title()
-	fn = track.get_filename_path()
+	title = trck.get_title()
 
 	#####
 	# first attempt: search for track as a single
 	#####
 	
-	page1 = search_and_get_results(title, type='release', format="Single|12''|10''|7''", sort='year,asc')
+	page1 = search_and_get_results(title, type='release', formats="Single|12''|10''|7''", sort='year,asc')
 	results = convert_discogs_results(page1)
 	res1 = utils.get_earliest_matching_hit(results, title)
 
@@ -57,7 +55,7 @@ def discogs_guess_track(track):
 	# from 'Puff Daddy - I will always love you (Abas remix)' => 'Puff Daddy - I will always love you'
 	title = utils.get_base_title(title)
 	
-	page1 = search_and_get_results(title, type='release', format="Single|12''|10''|7''", sort='year,asc')
+	page1 = search_and_get_results(title, type='release', formats="Single|12''|10''|7''", sort='year,asc')
 	results = convert_discogs_results(page1)
 	res2 = utils.get_earliest_matching_hit(results, title)
 
@@ -69,16 +67,16 @@ def discogs_guess_track(track):
 	# from 'Puff Daddy - I will always love you (Abas remix)' => 'Puff Daddy - I will always love you'
 	title = utils.get_base_title(title)
 			
-	page1 = search_and_get_results(title, type='release', format='', sort='year,asc')
+	page1 = search_and_get_results(title, type='release', formats='', sort='year,asc')
 	results = convert_discogs_results(page1)
 	res3 = utils.get_earliest_matching_hit(results, title, single=False)
 	
 	ls = [i for i in [res1,res2,res3] if i is not None]
 	if len(ls) > 0:
 		mn = min(ls, key=lambda t: t[0])
-		track.year = mn[0]
-		track.label = mn[1]
-	return track
+		trck.year = mn[0]
+		trck.label = mn[1]
+	return trck
 
 
 	
@@ -133,12 +131,12 @@ def writeout_tracklist(tl):
 	f.close()
 	
 
-def search_and_get_results(title, format, type, sort, first=True):
+def search_and_get_results(title, formats, type, sort, first=True):
 	"""Function to query the discogs API and manage throttling and returning a list of results.
 	
 	Args:
 		title (str): The track title and artist name
-		format (str): The format of the medium to search for. Values used here are one of: ["Single|12''|10''|7''" or ""] where the first specify that we are searching for singles only and the second puts no restriction on format.
+		formats (str): The formats of the medium to search for. Values used here are one of: ["Single|12''|10''|7''" or ""] where the first specify that we are searching for singles only and the second puts no restriction on formats.
 		type (str): The type of entities to consider. The one used here is "release", other options on discogs are "artist", "label", etc
 		sort (str): Sorting order and condition. The value used here is "year,asc"
 		first (bool): Flag used for managing API throttling restriction and sleeping. Don't modify!
@@ -152,13 +150,13 @@ def search_and_get_results(title, format, type, sort, first=True):
 	if D_CLIENT is None:
 		D_CLIENT = discogs_client.Client('ExampleApplication/0.1', user_token=load_config())
 	page1 = None
-	results = D_CLIENT.search(title, type=type, format=format, sort=sort)
+	results = D_CLIENT.search(title, type=type, format=formats, sort=sort)
 	try:
 		page1 = results.page(1)
 	except discogs_client.exceptions.HTTPError as e:
 		print(e)
 		time.sleep( 60 )
-		return search_and_get_results(title, format, type, sort, first=False)
+		return search_and_get_results(title, formats, type, sort, first=False)
 	return page1
 
 		
@@ -173,7 +171,7 @@ def load_config():
 
 	con = None
 	if os.path.isfile('.\\guestrrday\\config.yaml'):
-		with open('.\\guestrrday\\config.yaml', 'r') as stream:
+		with open('.\\guestrrday\\config.yaml', 'r', encoding='utf-8') as stream:
 			try:
 				con = yaml.safe_load(stream)
 			except yaml.YAMLError as exc:

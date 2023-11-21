@@ -36,11 +36,11 @@ class tracklist:
 		self.type = None
 		self.__seen = set()
 	
-	def add(self, track):
-		if self.eliminate_duplicates and track.get_title() in self.__seen:
+	def add(self, trck):
+		if self.eliminate_duplicates and trck.get_title() in self.__seen:
 			return
-		self.__seen.add(track.get_title())
-		self.__trck_lst.append(track)
+		self.__seen.add(trck.get_title())
+		self.__trck_lst.append(trck)
 		
 	def get(self, index):
 		if index < len(self.__trck_lst):
