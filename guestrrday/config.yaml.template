@@ -1,16 +1,6 @@
 ---
       
 
-api_keys:
-    - XYZ
-    - ABC
-
-search_engine_ids:
-    - IJK
-    - EFG
-    
-quota_user: 5168342
-
 discogs_user_token: 8923AESI178S
 
 
