@@ -24,7 +24,7 @@ Example:
 
 ```Ike & Tina Turner - A Love Like Yours (Don't Come Knocking Everyday) (London American, 1966)```
 
-The script queries discogs and google and includes several tricks to guess a good estimate of the year of release.
+The script queries discogs.com and includes some tweaks to increase the precision and accuracy of the search (see [Why This Tool?](#why-this-tool) below).
 
 The tool will rename files if the input is a directory, and will create a new textfile in the case of file, and will print to stdout in case of cli args.
 
@@ -52,7 +52,7 @@ The tool will automatically detect which one you mean.
 
 You can run _guestrrday_ as a package if running it as a script doesn't work:
 ```sh
-guestrrday --input SOURCE
+python -m guestrrday --input SOURCE
 ```
 
 
@@ -64,8 +64,9 @@ Guestrrday scans a list of song titles and queries discogs.com for the year and 
 
 I made this tool because I had to strict requirements: *high prediction rate* and *high accuracy* **at scale**. So what is the current prediction rate and accuracy you ask? Well, there are three variables affecting prediction rate and accuracy: (1) the completeness of the discogs.com database, (2) unsanitized tracknames / filenames, and (3) the limitations of the discogs search engine (relative to duckduckgo or google, for example). We can't control number (1) but we can control (2) & (3), and this is what this tool focuses on. The completeness of the discogs DB and any music DB really varies based on the music: for example, data on  90s electronic music singles is much more complete than pre-war blues releases (1930s, 40s).
 
-To throw rough estimates from experience, I would say the average completness of the discogs DB with regards to the *year of release* is around 85-90%. 95% of those are typically detected by this tool. I managed to bring down the rate of false negatives to negligable levels. What remains are po
+To throw rough estimates from experience, I would say the average completness of the discogs DB with regards to the *year of release* is around 85-90%. 95% of those are typically detected by this tool. 
 
+However, it must be noted, there are many singles on discogs which have no original year of release but that of a reissue year, and in that case the tool will return the reissue date. For example, a disco single released in 1970s but for which no year is available for the original release on the discogs DB, but a year is availalbe for a reissue released at a later date (say 2015). In that case, the detected year for that track would be 2015 (and the label would be the reissue label).
 
 ## Contribution
 
