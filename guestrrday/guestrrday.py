@@ -48,31 +48,22 @@ def discogs_guess_track(trck):
     title = trck.get_title()
 
     # first attempt: search for track as a single
-
-    page1 = search_and_get_results(
+    res1 = search_and_get_results(
         title, type="release", formats="Single|12''|10''|7''", sort="year,asc"
     )
-    results = convert_discogs_results(page1)
-    res1 = utils.get_earliest_matching_hit(results, title)
 
-    # second attempt: singles but drop anything between brackets (mix name typically)
-
+    
     # from 'Puff Daddy - I love you (Abas remix)' => 'Puff Daddy - I love you'
     title = utils.get_base_title(title)
-
-    page1 = search_and_get_results(
+    
+    # second attempt: singles but drop anything between brackets (mix name typically)
+    res2 = search_and_get_results(
         title, type="release", formats="Single|12''|10''|7''", sort="year,asc"
     )
-    results = convert_discogs_results(page1)
-    res2 = utils.get_earliest_matching_hit(results, title)
+
 
     # third attempt: any 'kind' of release (albums, compilations). Plus no mix name
-
-    title = utils.get_base_title(title)
-
-    page1 = search_and_get_results(title, type="release", formats="", sort="year,asc")
-    results = convert_discogs_results(page1)
-    res3 = utils.get_earliest_matching_hit(results, title, single=False)
+    res3 = search_and_get_results(title, type="release", formats="", sort="year,asc")
 
     ls = [i for i in [res1, res2, res3] if i is not None]
     if len(ls) > 0:
@@ -170,7 +161,11 @@ def search_and_get_results(title, formats, type, sort, first=True):
         print(e)
         time.sleep(60)
         return search_and_get_results(title, formats, type, sort, first=False)
-    return page1
+
+    single = formats != ''
+    results = convert_discogs_results(page1)
+    res = utils.get_earliest_matching_hit(results, title, single=single)
+    return res
 
 
 def load_config():
