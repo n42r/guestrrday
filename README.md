@@ -52,7 +52,7 @@ The tool will automatically detect which one you mean.
 
 You can run _guestrrday_ as a package if running it as a script doesn't work:
 ```sh
-guestrrday --input SOURCE
+python -m guestrrday --input SOURCE
 ```
 
 
