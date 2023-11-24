@@ -6,8 +6,12 @@ from pathlib import Path
 from guestrrday.guestrrday import guess
 from guestrrday.track import track
 
+@pytest.fixture(autouse=True)
 def test_clean_up_in_case_prev_fail():
 	shutil.rmtree('tests/temp-test-files/', ignore_errors=True)
+	yield
+	shutil.rmtree('tests/temp-test-files/',ignore_errors=True)
+
 
 def gen(title, guess):
 	dir = os.path.dirname(title)
@@ -112,6 +116,4 @@ def test_guess_tracklist_all_fail():
 			idx += 1
 	shutil.rmtree('tests/temp-test-files/')
 
-# def test_clean_up_in_case_fail():
-	# shutil.rmtree('tests/temp-test-files/',ignore_errors=True)
 	

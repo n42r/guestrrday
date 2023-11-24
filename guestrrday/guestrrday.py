@@ -174,22 +174,16 @@ def load_config():
     Args:
             None
     Returns:
-            str: discogs_user_token
+            str: discogs user token
     """
-
-    con = None
-    if os.path.isfile(".\\guestrrday\\config.yaml"):
-        with open(".\\guestrrday\\config.yaml", "r", encoding="utf-8") as stream:
-            try:
-                con = yaml.safe_load(stream)
-            except yaml.YAMLError as exc:
-                print(exc)
-    if con is None:
-        raise Exception("No 'config.yaml' found or is empty.")
-
-    if con.get("discogs_user_token") is None:
-        raise Exception("You must provide a discogs_user_token in 'config.yaml'.")
-    return con.get("discogs_user_token")
+    if os.getenv('DISCOGS_TOKEN') is not None:
+        return os.getenv('DISCOGS_TOKEN')
+    inp = input("No environment variable 'DISCOGS_TOKEN' found. \n" + \
+                "Either set it or enter one below:\n")
+    if inp == '':
+            exit("Exiting. No 'DISCOGS_TOKEN' provided.")
+    else:
+            return inp
 
 
 def convert_discogs_results(page):
