@@ -1,3 +1,0 @@
-Related Issue: 
-Description:
-Mentions:
