@@ -2,10 +2,6 @@
 
 # guestrrday 
 
-![GitHub License](https://img.shields.io/github/license/n42r/guestrrday)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)
-![Static Badge](https://img.shields.io/badge/coverage-89%25-blue)
-
 #### because for music heads, context matters!
 
 A CLI tool that does one thing and does it well: guess the release date and record label of a set of music tracks. 20,000+ songs guessed so far!
