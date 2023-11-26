@@ -62,7 +62,7 @@ python -m guestrrday --input SOURCE
 
 Guestrrday scans a list of song titles and queries discogs.com for the year and label of each. This is clearly a simple function, right? Why a whole tool?
 
-I made this tool because I had two strict requirements: *high prediction rate* and *high accuracy* **at scale**. So what is the current prediction rate and accuracy you ask? Well, there are three variables affecting prediction rate and accuracy: (1) the completeness of the discogs.com database, (2) unsanitized tracknames / filenames, and (3) the limitations of the discogs search engine (ex., sensitivity to slight changes in search terms). We can't control (1) but we can control (2) & (3), and this is what this tool focuses on. The completeness of the discogs DB and any music DB really varies based on the music: for example, data on  90s electronic music singles is much more complete than pre-war blues releases (1930s, 40s).
+I made this tool because I had two strict requirements: *high prediction rate* and *accuracy* **at scale**. So what is the current prediction rate and accuracy you ask? Well, there are three variables affecting prediction rate and accuracy: (1) the completeness of the discogs.com database, (2) unsanitized tracknames / filenames, and (3) the limitations of the discogs search engine (ex., sensitivity to slight changes in search terms). We can't control (1) but we can control (2) & (3), and this is what this tool focuses on[^1]. The completeness of the discogs DB and any music DB really varies based on the music: for example, data on 90s electronic music singles is much more complete than pre-war blues releases (1930s, 40s).
 
 To throw rough estimates from experience, I would say the average completness of the discogs DB with regards to the *year of release* is around 85-90%. 95% of those are typically detected by this tool, which gives it a 95% prediction rate.
 
@@ -76,3 +76,6 @@ Push requests are welcome, just create an issue.
 ## License
 
 This project is Licensed under the [MIT](/LICENSE) License.
+
+
+[^1]: I tried generic fuzzy matching ([thefuzz](https://github.com/seatgeek/thefuzz)) but couldn't seem to get as good of an accuracy in search results: I got more false positives and couldn't find a sweetspot in the numerical score to optimize false negatives. Ofcourse I could  have run a large test sets and optimized for that value and fuzzy matching algorithm, but for such a small project it was not worth it.
