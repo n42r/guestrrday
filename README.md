@@ -34,6 +34,11 @@ The tool will rename files if the input is a directory, and will create a new te
 
 ## Usage
 
+**NOTE**: You need to have a free discogs user token to use the tool. This is how to do it:
+1. Create a free account on [discogs.com](https://discogs.com)
+2. Visit the [developer tools section](https://www.discogs.com/de/settings/developers) and create a new token
+3. Set the _DISCOGS_TOKEN_ environmental variable on your system with that value. *Alternatively*, the tool will prompt you for it on the first run and then store in an environmental variable.
+
 General Usage:
 ```sh
 guestrrday --input SOURCE
