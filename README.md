@@ -4,7 +4,7 @@
 
 #### because for music heads, context matters!
 
-A CLI tool that does one thing and does it well: guess the release date and record label of a set of music tracks. 20,000+ songs guessed so far!
+A CLI tool that does one thing and does it well: guess the release date and record label of a set of music tracks with high accuracy and precision. 20,000+ songs guessed so far!
 
 </div>
 
