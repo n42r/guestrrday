@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = [
    "n42r <n42r.me@gmail.com>",
 ]
-description = "A tool to guess the year of release and record lable of a list of tracks"
+description = "Retrieve the release date and record label of a set of music tracks with high precision & accuracy. 20,000 guessed so far!"
 readme = "README.md"
 license = "MIT"
 classifiers = [
