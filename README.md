@@ -72,7 +72,7 @@ However, it must be noted, there are many singles on discogs which have no origi
 
 ## Contribution
 
-Push requests are welcome, just create an issue.
+Pull requests welcome, just create an issue.
 
 ## License
 
