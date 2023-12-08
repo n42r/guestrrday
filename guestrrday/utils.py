@@ -1,9 +1,10 @@
 import os
 import re
 import string
-from nltk.corpus import stopwords
 import unidecode
+# from nltk.corpus import stopwords
 
+STOPWORDS = open('guestrrday/stopwords').read().split('\n')
 
 def has_music_ext(fn):
     """Check if a filename has a music related extension.
@@ -96,7 +97,7 @@ def filter_out_stopwords_punc(lst):
         word
         for word in lst
         if not (
-            word in stopwords.words("english")
+            word in STOPWORDS
             or word in string.punctuation
             or len(word) < 2
         )

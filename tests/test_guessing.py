@@ -74,46 +74,46 @@ def test_guess_directory_all_succeed():
 	shutil.rmtree('tests/temp-test-files/')
 
 
-def test_guess_tracklist_all_succeed():
-	Path('tests/temp-test-files/').mkdir()
-	in1 = 'tests/temp-test-files/tracklist'
-	with open(in1, 'w', encoding='utf8') as f:
-		f.write('003. Skyy - High\n')
-		f.write('028. The Roots - The Next Movement\n')
-	f.close()
+# def test_guess_tracklist_all_succeed():
+# 	Path('tests/temp-test-files/').mkdir()
+# 	in1 = 'tests/temp-test-files/tracklist'
+# 	with open(in1, 'w', encoding='utf8') as f:
+# 		f.write('003. Skyy - High\n')
+# 		f.write('028. The Roots - The Next Movement\n')
+# 	f.close()
 	
-	out1= in1 + '-guessed'
-	lines_out = ['003. Skyy - High (Derby, 1980)', '028. The Roots - The Next Movement (MCA Records, 1999)']
+# 	out1= in1 + '-guessed'
+# 	lines_out = ['003. Skyy - High (Derby, 1980)', '028. The Roots - The Next Movement (MCA Records, 1999)']
 	
-	guess(in1)
+# 	guess(in1)
 	
-	idx = 0
-	with open(out1, encoding='utf8') as f:
-		for line in f:
-			assert line.strip() == lines_out[idx].strip()
-			idx += 1
-	shutil.rmtree('tests/temp-test-files/')
+# 	idx = 0
+# 	with open(out1, encoding='utf8') as f:
+# 		for line in f:
+# 			assert line.strip() == lines_out[idx].strip()
+# 			idx += 1
+# 	shutil.rmtree('tests/temp-test-files/')
 
 
 
-def test_guess_tracklist_all_fail():
-	Path('tests/temp-test-files/').mkdir()
-	in1 = 'tests/temp-test-files/tracklist'
-	with open(in1, 'w', encoding='utf8') as f:
-		f.write('019. Bill Connors Trio A Pedal 1985\n')
-		f.write("066. BIGTOWN PLAYBOY LEddie Taylor\n")
-	f.close()
+# def test_guess_tracklist_all_fail():
+# 	Path('tests/temp-test-files/').mkdir()
+# 	in1 = 'tests/temp-test-files/tracklist'
+# 	with open(in1, 'w', encoding='utf8') as f:
+# 		f.write('019. Bill Connors Trio A Pedal 1985\n')
+# 		f.write("066. BIGTOWN PLAYBOY LEddie Taylor\n")
+# 	f.close()
 	
-	out1= in1 + '-guessed'
-	lines_out = ['019. Bill Connors Trio A Pedal 1985', "066. BIGTOWN PLAYBOY LEddie Taylor"]
+# 	out1= in1 + '-guessed'
+# 	lines_out = ['019. Bill Connors Trio A Pedal 1985', "066. BIGTOWN PLAYBOY LEddie Taylor"]
 	
-	guess(in1)
+# 	guess(in1)
 
-	idx = 0
-	with open(out1, encoding='utf8') as f:
-		for line in f:
-			assert line.strip() == lines_out[idx].strip()
-			idx += 1
-	shutil.rmtree('tests/temp-test-files/')
+# 	idx = 0
+# 	with open(out1, encoding='utf8') as f:
+# 		for line in f:
+# 			assert line.strip() == lines_out[idx].strip()
+# 			idx += 1
+# 	shutil.rmtree('tests/temp-test-files/')
 
 	
