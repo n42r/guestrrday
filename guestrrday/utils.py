@@ -2,9 +2,9 @@ import os
 import re
 import string
 import unidecode
-# from nltk.corpus import stopwords
+import pkgutil
 
-STOPWORDS = open('guestrrday/stopwords').read().split('\n')
+STOPWORDS = pkgutil.get_data(__name__, "stopwords").decode('utf-8')
 
 def has_music_ext(fn):
     """Check if a filename has a music related extension.

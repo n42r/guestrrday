@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "guestrrday"
-version = "0.1.0"
+version = "0.1.2"
 authors = [
    "n42r <n42r.me@gmail.com>",
 ]
@@ -35,3 +35,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/n42r/guestrrday/issues"
+
+[tool.poetry.scripts]
+guestrrday = "guestrrday:main"
